@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>승환 — Backend Engineer</title>
+<meta name="description" content="설계부터 배포, 트래픽 대응까지. 백엔드 개발자 승환의 포트폴리오">
+<meta name="theme-color" content="#07080c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  /* 팔레트: 깊은 남색 밤하늘 + 페리윙클(주색) · 민트 · 달빛 골드 */
+  :root {
+    --bg: #07080c; --bg2: #0d0f15; --surface: #11131b;
+    --text: #eceef4; --muted: #8b90a0; --dim: #4e5466;
+    --line: rgba(255,255,255,.07); --line2: rgba(255,255,255,.12);
+    --a1: #8b9dff; --a2: #6ee7c8; --a3: #ffc56b; --a4: #ff8fab; --a5: #7cc4ff; --a6: #c4b5fd;
+    --live: #ff4d6d;
+    --grad: linear-gradient(100deg, #a5b4ff 0%, #6ee7c8 55%, #ffe3a8 100%);
+    --display: "Space Grotesk", Pretendard, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { overflow-x: clip; scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: Pretendard, -apple-system, system-ui, sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--a1); color: #0a0b12; }
+
+  /* 배경: 오로라 + 점 그리드 + 마우스를 따라오는 빛 + 필름 그레인 */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(520px circle at var(--mx, 75%) var(--my, 15%), rgba(139,157,255,.13), transparent 60%),
+      radial-gradient(900px 500px at 15% -10%, rgba(139,157,255,.14), transparent 70%),
+      radial-gradient(700px 420px at 95% 5%, rgba(110,231,200,.08), transparent 70%),
+      radial-gradient(circle, rgba(255,255,255,.055) 1px, transparent 1px) 0 0 / 28px 28px;
+    -webkit-mask-image: linear-gradient(#000 0, #000 70%, transparent 100%);
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .05; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* 상단 바 */
+  nav {
+    position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px) saturate(1.4);
+    background: rgba(7,8,12,.62); border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-family: var(--mono); font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .logo b { color: var(--a1); font-weight: 600; }
+  .nav-links { display: flex; gap: 26px; font-size: 14px; color: var(--muted); }
+  .nav-links a { transition: color .15s; }
+  .nav-links a:hover { color: var(--text); }
+  .status {
+    display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted);
+    padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line2); background: rgba(255,255,255,.03);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a2); box-shadow: 0 0 0 0 rgba(110,231,200,.55); animation: pulse 2.2s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(110,231,200,0); } 100% { box-shadow: 0 0 0 0 rgba(110,231,200,0); } }
+
+  /* 히어로 */
+  .hero { min-height: calc(100svh - 60px); display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; padding: 72px 0; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12.5px; color: var(--a1);
+    letter-spacing: .1em; margin-bottom: 26px;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; opacity: .7; }
+  .hero h1 {
+    white-space: nowrap; /* 세 줄 고정 */
+    font-family: var(--display); font-weight: 700; font-size: clamp(34px, 5.3vw, 70px);
+    line-height: 1; letter-spacing: -0.05em; word-break: keep-all; color: #f4f5fa;
+  }
+  .hero h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { margin-top: 30px; font-size: clamp(16px, 1.6vw, 19px); color: var(--muted); max-width: 500px; word-break: keep-all; line-height: 1.75; }
+  .sub strong { color: var(--text); font-weight: 600; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 38px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px;
+    font-weight: 600; font-size: 15px; border: 1px solid var(--line2); background: rgba(255,255,255,.02);
+    transition: transform .18s, background .18s, border-color .18s, box-shadow .18s;
+  }
+  .btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.05); }
+  .btn.primary { background: #f4f5fa; color: #0a0b12; border-color: #f4f5fa; }
+  .btn.primary:hover { background: #fff; box-shadow: 0 10px 40px -8px rgba(139,157,255,.6); }
+
+  /* 터미널: 그라데이션 테두리 유리창 */
+  .term {
+    position: relative; border-radius: 18px; overflow: hidden; font-family: var(--mono); font-size: 13.5px;
+    background: linear-gradient(rgba(13,15,21,.88), rgba(13,15,21,.88)) padding-box,
+                linear-gradient(140deg, rgba(139,157,255,.55), rgba(255,255,255,.06) 40%, rgba(110,231,200,.35)) border-box;
+    border: 1px solid transparent; backdrop-filter: blur(10px);
+    box-shadow: 0 50px 100px -30px rgba(139,157,255,.35), 0 0 0 1px rgba(0,0,0,.4);
+  }
+  .term-bar { display: flex; align-items: center; gap: 7px; padding: 13px 15px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.02); }
+  .term-bar i { width: 11px; height: 11px; border-radius: 50%; }
+  .term-bar i:nth-child(1) { background: #ff5f57; } .term-bar i:nth-child(2) { background: #febc2e; } .term-bar i:nth-child(3) { background: #28c840; }
+  .term-bar span { margin-left: auto; color: var(--dim); font-size: 12px; }
+  .term pre { padding: 22px 24px 26px; margin: 0; line-height: 1.9; white-space: pre-wrap; font-family: inherit; color: #d6d9e4; }
+  .p { color: var(--a1); } .c { color: var(--dim); } .ok { color: var(--a2); } .v { color: var(--a3); }
+  .blink { display: inline-block; width: 8px; height: 15px; background: var(--a1); vertical-align: -2px; animation: bl 1s steps(1) infinite; }
+  @keyframes bl { 50% { opacity: 0; } }
+
+  /* 숫자 띠 */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.015); overflow: hidden; }
+  .stat { padding: 30px 26px; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: 0; }
+  .stat b { display: block; font-family: var(--display); font-size: 42px; font-weight: 700; line-height: 1.1; letter-spacing: -0.04em;
+    background: linear-gradient(180deg, #fff, #9aa0b4); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .stat span { font-size: 13px; color: var(--muted); }
+
+  /* 기술 스택 흐르는 띠 (외곽선 글씨) */
+  .marquee { overflow: hidden; padding: 34px 0; margin-top: 56px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .track { display: flex; gap: 52px; width: max-content; animation: slide 36s linear infinite;
+    font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -0.02em;
+    color: transparent; -webkit-text-stroke: 1px rgba(236,238,244,.28); }
+  .track span:nth-child(3n+1) { color: rgba(236,238,244,.85); -webkit-text-stroke: 0; }
+  .track span::before { content: "✦"; color: var(--a1); -webkit-text-stroke: 0; margin-right: 52px; font-size: 14px; vertical-align: 6px; }
+  .marquee:hover .track { animation-play-state: paused; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* 섹션 공통 */
+  section { padding: 128px 0 40px; }
+  .sec-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 44px; flex-wrap: wrap; }
+  .sec-no { font-family: var(--mono); font-size: 12.5px; color: var(--a1); letter-spacing: .08em; margin-bottom: 12px; }
+  .sec-head h2 { font-family: var(--display); font-size: clamp(34px, 5vw, 56px); letter-spacing: -0.045em; line-height: 1.08; font-weight: 700; }
+  .sec-head p { color: var(--muted); max-width: 340px; font-size: 15px; }
+
+  /* 프로젝트 벤토 */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .card {
+    --c: var(--a1);
+    position: relative; grid-column: span 2; padding: 28px; border-radius: 22px; overflow: hidden; isolation: isolate;
+    background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)), var(--bg2);
+    border: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    transition: border-color .25s, transform .25s, box-shadow .25s;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .3s;
+    background: radial-gradient(420px circle at var(--x, 50%) var(--y, 50%), color-mix(in srgb, var(--c) 18%, transparent), transparent 65%);
+  }
+  .card::after { /* 카드 위쪽 색 띠 */
+    content: ""; position: absolute; left: 28px; right: 28px; top: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--c), transparent); opacity: .5;
+  }
+  .card:hover { border-color: color-mix(in srgb, var(--c) 45%, transparent); transform: translateY(-4px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 30px 60px -30px color-mix(in srgb, var(--c) 45%, transparent); }
+  .card:hover::before { opacity: 1; }
+  .card.wide { grid-column: span 3; }
+  .card.hero-card { grid-column: span 6; display: grid; grid-template-columns: 1fr 1.1fr; gap: 36px; align-items: center; padding: 36px; }
+  .idx { font-family: var(--mono); font-size: 11.5px; color: var(--c); letter-spacing: .06em; opacity: .85; }
+  .card h3 { font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; }
+  .hero-card h3 { font-size: clamp(30px, 3.6vw, 42px); }
+  .card p { color: var(--muted); font-size: 15px; word-break: keep-all; flex: 1; line-height: 1.7; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-family: var(--mono); font-size: 11.5px; color: #b4b8c6; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+  .links { display: flex; gap: 18px; font-size: 14px; font-weight: 600; margin-top: 4px; }
+  .links a { color: var(--c); transition: opacity .15s; }
+  .links a:hover { opacity: .75; }
+  .award { align-self: start; font-size: 12px; font-weight: 700; color: var(--a3); background: rgba(255,197,107,.08); border: 1px solid rgba(255,197,107,.3); border-radius: 999px; padding: 3px 10px; }
+
+  /* 치지직 카드 속 라이브 화면 */
+  .screen { position: relative; aspect-ratio: 16/10; border-radius: 16px; overflow: hidden; border: 1px solid var(--line2);
+    background: radial-gradient(circle at 28% 38%, rgba(139,157,255,.45), transparent 52%), radial-gradient(circle at 80% 72%, rgba(110,231,200,.3), transparent 50%), #0a0c13;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.8); }
+  .live { position: absolute; top: 14px; left: 14px; display: flex; gap: 8px; font: 700 11px var(--mono); }
+  .live b { background: var(--live); color: #fff; padding: 3px 8px; border-radius: 5px; }
+  .live span { background: rgba(0,0,0,.5); padding: 3px 8px; border-radius: 5px; backdrop-filter: blur(6px); }
+  .chat { position: absolute; right: 12px; bottom: 12px; width: 48%; display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+  .chat div { background: rgba(8,9,14,.6); backdrop-filter: blur(8px); border: 1px solid var(--line); padding: 6px 10px; border-radius: 10px; animation: chatIn 6s infinite; opacity: 0; }
+  .chat div:nth-child(2) { animation-delay: 1.2s; } .chat div:nth-child(3) { animation-delay: 2.4s; } .chat div:nth-child(4) { animation-delay: 3.6s; }
+  .chat em { font-style: normal; color: var(--a2); margin-right: 6px; font-weight: 600; }
+  @keyframes chatIn { 0% { opacity: 0; transform: translateY(8px); } 8%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  .pods { position: absolute; left: 14px; bottom: 14px; font: 600 11px var(--mono); color: #c9cde0; }
+  .bars { display: flex; gap: 4px; align-items: end; height: 46px; margin-top: 6px; }
+  .bars i { width: 12px; border-radius: 3px; background: linear-gradient(180deg, var(--a2), #2bb59a); animation: grow 4s ease-in-out infinite; }
+  .bars i:nth-child(n+3) { animation-name: scale; background: linear-gradient(180deg, var(--a1), #5b6be0); }
+  @keyframes grow { 0%, 100% { height: 60%; } 50% { height: 90%; } }
+  @keyframes scale { 0%, 25%, 100% { height: 0; opacity: 0; } 45%, 80% { height: 75%; opacity: 1; } }
+
+  /* 연락 */
+  .contact { text-align: center; padding: 170px 0 130px; position: relative; }
+  .contact::before { content: ""; position: absolute; left: 50%; top: 45%; width: 620px; height: 320px; transform: translate(-50%, -50%); z-index: -1;
+    background: radial-gradient(closest-side, rgba(139,157,255,.18), transparent); filter: blur(20px); }
+  .contact h2 { font-family: var(--display); font-size: clamp(44px, 8vw, 104px); font-weight: 700; letter-spacing: -0.055em; line-height: 1; }
+  .contact h2 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .contact p { color: var(--muted); margin: 26px auto 38px; max-width: 460px; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0; font: 12px var(--mono); color: var(--dim); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .replay { background: none; border: 0; color: var(--muted); font: inherit; cursor: pointer; transition: color .15s; }
+  .replay:hover { color: var(--a1); }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding: 48px 0 64px; min-height: auto; gap: 40px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(2) { border-right: 0; }
+    .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+    .bento { grid-template-columns: 1fr; }
+    .card, .card.wide, .card.hero-card { grid-column: auto; }
+    .card.hero-card { grid-template-columns: 1fr; padding: 28px; }
+    .nav-links { display: none; }
+    section { padding-top: 96px; }
+  }
+
+  /* ── 에이전트 스웜 인트로 ── */
+  body { position: relative; }
+  .swarm-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 50; } /* 화면 밖 커서가 가로 스크롤을 만들지 않게 */
+  .cur { position: absolute; left: 0; top: 0; will-change: transform; }
+  .cur svg { display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
+  .cur span { position: absolute; left: 14px; top: 20px; padding: 2px 8px; border-radius: 6px; font: 700 11px var(--mono); color: #0a0b12; white-space: nowrap; }
+  .size { position: absolute; font: 700 10px var(--mono); color: #0a0b12; padding: 1px 6px; border-radius: 4px; transform: translateX(-50%); white-space: nowrap; }
+  .swarming [data-swarm="drop"]:not(.placed) { opacity: 0; }
+  .working { outline: 1.5px dashed var(--sc); outline-offset: 6px; }
+  .typing::after { content: ""; display: inline-block; width: 3px; height: .9em; margin-left: 3px; background: var(--sc); vertical-align: -0.1em; animation: bl .8s steps(1) infinite; }
+  .skip-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 60; padding: 8px 16px; border-radius: 999px; font: 12px var(--mono); background: rgba(255,255,255,.06); backdrop-filter: blur(10px); color: var(--muted); border: 1px solid var(--line2); }
+
+  /* ── 프로젝트: 위쪽 상세 패널 + 같은 크기 카드 ── */
+  .feature {
+    --c: var(--a2);
+    position: relative; display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center;
+    padding: 36px; margin-bottom: 16px; border-radius: 24px; min-height: 400px; scroll-margin-top: 90px;
+    border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+    background:
+      radial-gradient(700px circle at 0% 0%, color-mix(in srgb, var(--c) 11%, transparent), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.01)), var(--bg2);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 40px 90px -45px color-mix(in srgb, var(--c) 55%, transparent);
+    transition: border-color .4s, box-shadow .4s;
+  }
+  .feature .info { display: flex; flex-direction: column; gap: 14px; }
+  .feature h3 { font-family: var(--display); font-size: clamp(30px, 3.6vw, 42px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.15; }
+  .feature p { color: var(--muted); font-size: 15.5px; line-height: 1.75; word-break: keep-all; }
+  .feature ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; color: #c9ccd8; }
+  .feature li::before { content: "→"; color: var(--c); margin-right: 10px; font-family: var(--mono); }
+  .feature .links a { color: var(--c); }
+  .feature.swap .info > *, .feature.swap .visual { animation: swapIn .5s cubic-bezier(.2,.8,.2,1) both; }
+  .feature.swap .info > *:nth-child(2) { animation-delay: .04s; } .feature.swap .info > *:nth-child(3) { animation-delay: .08s; }
+  .feature.swap .info > *:nth-child(n+4) { animation-delay: .12s; } .feature.swap .visual { animation-delay: .06s; }
+  @keyframes swapIn { from { opacity: 0; transform: translateY(12px); } }
+
+  .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  button.card { font: inherit; color: inherit; text-align: left; cursor: pointer; min-height: 200px; grid-column: auto; }
+  .card .more { font-size: 13px; font-weight: 600; color: var(--c); opacity: .8; transition: opacity .2s, transform .2s; }
+  .card:hover .more { opacity: 1; transform: translateX(3px); }
+  .card.active { border-color: color-mix(in srgb, var(--c) 60%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 10%, transparent), rgba(255,255,255,.01)), var(--bg2); }
+  .card.active .more { opacity: 1; }
+  .card.active .more::after { content: " · 보는 중"; color: var(--muted); font-weight: 500; }
+
+  /* 미니 화면 공통 */
+  .visual { position: relative; aspect-ratio: 16/10; border-radius: 16px; overflow: hidden; border: 1px solid var(--line2); background: #0a0c13; box-shadow: 0 30px 60px -30px rgba(0,0,0,.8); }
+
+  /* Interview Lab: 문제 카드 */
+  .v-quiz { display: grid; place-items: center; background: radial-gradient(circle at 70% 20%, rgba(139,157,255,.3), transparent 55%), #0a0c13; }
+  .quiz { width: 78%; padding: 20px 22px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line2); backdrop-filter: blur(6px); }
+  .quiz .top { display: flex; justify-content: space-between; font: 600 11px var(--mono); color: var(--a1); margin-bottom: 12px; }
+  .quiz .q { font-weight: 700; font-size: 16px; margin-bottom: 12px; }
+  .quiz .a { font-size: 13px; color: #b9bdcb; line-height: 1.65; animation: reveal 5s infinite; }
+  .quiz .bar2 { height: 4px; border-radius: 4px; background: rgba(255,255,255,.08); margin-top: 16px; overflow: hidden; }
+  .quiz .bar2 i { display: block; height: 100%; width: 24%; background: var(--a1); animation: prog 5s infinite; }
+  @keyframes reveal { 0%, 25% { filter: blur(6px); opacity: .4; } 40%, 100% { filter: none; opacity: 1; } }
+  @keyframes prog { 0%, 60% { width: 24%; } 85%, 100% { width: 25%; } }
+
+  /* 단축 URL */
+  .v-url { display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 0 9%; background: radial-gradient(circle at 20% 80%, rgba(255,143,171,.25), transparent 55%), #0a0c13; font-family: var(--mono); }
+  .v-url .in { padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line2); background: rgba(255,255,255,.04); color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .v-url .arrow { text-align: center; color: var(--a4); font-size: 18px; }
+  .v-url .outp { padding: 14px; border-radius: 10px; background: rgba(255,143,171,.1); border: 1px solid rgba(255,143,171,.35); color: #ffd1dc; font-size: 18px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .v-url .outp span { display: inline-block; overflow: hidden; white-space: nowrap; width: 0; animation: typeUrl 4s steps(14) infinite; }
+  .v-url .outp small { font-size: 11px; color: var(--muted); font-weight: 400; }
+  @keyframes typeUrl { 0%, 15% { width: 0; } 55%, 100% { width: 14ch; } }
+
+  /* Tello: 실제 대회처럼 파란 원 마커 위를 원으로 돌다가 착륙 */
+  .v-drone { background: #0a0c13; }
+  .v-drone svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .v-drone .path { fill: none; stroke: rgba(255,197,107,.35); stroke-width: 1.2; stroke-dasharray: 4 6; }
+  .v-drone .hud { font: 600 9px "JetBrains Mono", monospace; fill: #ffc56b; letter-spacing: .06em; }
+  .v-drone .hud.ok { fill: #4ade80; }
+
+  /* 펫케어: 실제 차량 화면 + 보호자 앱 */
+  .v-pet { background: radial-gradient(circle at 25% 30%, rgba(124,196,255,.28), transparent 60%), #0a0c13; }
+  .v-pet .car { position: absolute; left: 5%; top: 12%; width: 72%; border-radius: 10px; border: 1px solid var(--line2); box-shadow: 0 20px 40px -10px rgba(0,0,0,.7); }
+  .v-pet .phone-img { position: absolute; right: 5%; top: 7%; height: 86%; border-radius: 18px; border: 3px solid #1d2230; box-shadow: -12px 24px 40px -10px rgba(0,0,0,.75); animation: floaty 5s ease-in-out infinite; }
+  @keyframes floaty { 50% { transform: translateY(-6px); } }
+
+  /* 상담센터: 실제 사이트 캡처 */
+  .v-site { background: radial-gradient(circle at 80% 20%, rgba(196,181,253,.25), transparent 55%), #0a0c13; padding: 16px; }
+  .browser { height: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--line2); background: #111; display: flex; flex-direction: column; box-shadow: 0 20px 40px -10px rgba(0,0,0,.7); }
+  .browser .chrome { height: 28px; flex: none; background: #1b1d26; display: flex; align-items: center; gap: 5px; padding: 0 10px; }
+  .browser .chrome i { width: 9px; height: 9px; border-radius: 50%; background: #3a3d4a; }
+  .browser .chrome i:nth-child(1) { background: #ff5f57; } .browser .chrome i:nth-child(2) { background: #febc2e; } .browser .chrome i:nth-child(3) { background: #28c840; }
+  .browser .chrome span { margin: 0 auto; padding: 2px 14px; border-radius: 6px; background: rgba(255,255,255,.06); font: 10px "JetBrains Mono", monospace; color: #9aa0b4; }
+  .browser img { flex: 1; min-height: 0; width: 100%; object-fit: cover; object-position: top; display: block; }
+
+  /* 터미널 속 GitHub 오늘 기록 */
+  .gh-row { display: grid; grid-template-columns: auto auto 1fr; gap: 10px; }
+  .gh-row .r { color: var(--a2); }
+  .gh-row .m { color: #d6d9e4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (max-width: 860px) {
+    .feature { grid-template-columns: 1fr; padding: 26px; gap: 28px; }
+    .pgrid { grid-template-columns: 1fr; }
+    button.card { min-height: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">tmdghks<b>.dev</b></a>
+    <div class="nav-links"><a href="#work">Work</a><a href="#contact">Contact</a><a href="https://github.com/tmdghks-dev">GitHub ↗</a></div>
+    <span class="status"><i class="dot"></i>Open to work</span>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <p class="eyebrow" data-swarm="type">// BACKEND ENGINEER · SEOUL</p>
+      <h1 data-swarm="type">It works<br>on my machine.<br><span class="grad">And on yours.</span></h1>
+      <p class="sub" data-swarm="type">설계부터 배포, 트래픽 대응까지. <strong>끝까지 돌아가는 서비스를 만드는</strong> 백엔드 개발자 승환입니다.</p>
+      <div class="cta">
+        <a class="btn primary" data-swarm="drop" href="#work">프로젝트 보기 →</a>
+        <a class="btn" data-swarm="drop" href="https://github.com/tmdghks-dev">GitHub ↗</a>
+      </div>
+    </div>
+
+    <div class="term" data-swarm="drop">
+      <div class="term-bar"><i></i><i></i><i></i><span>~/tmdghks</span></div>
+<pre id="termPre"><span class="p">$</span> whoami
+승환 <span class="c">— backend engineer</span>
+
+<span class="p">$</span> git log --today <span class="c">--author=tmdghks-dev</span>
+<span id="ghToday"><span class="c">GitHub에서 오늘 기록을 불러오는 중…</span></span>
+
+<span class="p">$</span> kubectl get hpa
+chzzk   <span class="v">2 → 5 pods</span>  <span class="ok">✔ scaled</span>
+
+<span class="p">$</span> <i class="blink"></i></pre>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat" data-swarm="drop"><b>7+</b><span>직접 만든 프로젝트</span></div>
+    <div class="stat" data-swarm="drop"><b>2→5</b><span>오토스케일링 검증</span></div>
+    <div class="stat" data-swarm="drop"><b style="background:none;color:var(--a3)">🥈</b><span>AI 드론경진대회 은상</span></div>
+    <div class="stat" data-swarm="drop"><b>24/7</b><span>직접 운영하는 서비스</span></div>
+  </div>
+</div>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Java</span><span>Spring Boot</span><span>JPA</span><span>WebSocket</span><span>PostgreSQL</span><span>Docker</span><span>Kubernetes</span><span>Cloudflare</span><span>Rust</span><span>Python</span><span>Flutter</span>
+    <span>Java</span><span>Spring Boot</span><span>JPA</span><span>WebSocket</span><span>PostgreSQL</span><span>Docker</span><span>Kubernetes</span><span>Cloudflare</span><span>Rust</span><span>Python</span><span>Flutter</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section id="work">
+    <div class="sec-head">
+      <div>
+        <p class="sec-no" data-swarm="type">01 — SELECTED WORK</p>
+        <h2 data-swarm="type">만들고, 띄우고, 버텨본 것들</h2>
+      </div>
+      <p data-swarm="type">코드에서 끝나지 않고 실제 주소에서 돌아가는 서비스를 만듭니다.</p>
+    </div>
+
+    <article class="feature" id="feature" data-swarm="drop" aria-live="polite"></article>
+    <div class="pgrid" id="pgrid"></div>
+  </section>
+
+  <section class="contact" id="contact">
+    <p class="sec-no" data-swarm="type">02 — CONTACT</p>
+    <h2 data-swarm="type" style="margin-top:20px">Let's build<br><span class="grad">something real.</span></h2>
+    <p data-swarm="type">새로운 기회와 협업 제안을 기다리고 있어요. 부트캠프에서 쌓아가는 기록도 GitHub에 모두 공개합니다.</p>
+    <div class="cta" style="justify-content:center">
+      <a class="btn primary" data-swarm="drop" href="https://github.com/tmdghks-dev">GitHub ↗</a>
+      <a class="btn" data-swarm="drop" href="https://github.com/tmdghks-dev/bootcamp">부트캠프 기록 ↗</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 승환 · tmdghks.dev</span>
+    <button class="replay" onclick="location.reload()">↻ replay intro</button>
+  </div>
+</footer>
+
+<script>
+// 마우스 위치를 배경 빛과 카드 하이라이트에 전달
+addEventListener("pointermove", (e) => {
+  document.body.style.setProperty("--mx", e.clientX + "px");
+  document.body.style.setProperty("--my", e.clientY + "px");
+  const card = e.target.closest?.(".card");
+  if (card) {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty("--x", e.clientX - r.left + "px");
+    card.style.setProperty("--y", e.clientY - r.top + "px");
+  }
+});
+</script>
+<script>
+// 프로젝트 데이터: 카드를 누르면 위쪽 상세 패널이 그 프로젝트로 바뀐다.
+const PROJECTS = [
+  { id: "petcare", c: "var(--a5)", idx: "01 / MOBILITY", name: "펫케어 드라이브",
+    short: "차에 남은 반려견을 달래고, 보호자 폰으로 바로 알려 주는 차량 앱.",
+    desc: "현대자동차그룹 차량용 앱 개발 공모전 출품작. 차 안에 혼자 남은 반려견이 짖으면 차량 앱이 보호자 목소리와 안정 음악으로 달래고, 실내 온도와 상태를 Flutter 보호자 앱으로 실시간 전달합니다.",
+    points: ["짖음 감지 → 보호자 목소리 · 안정 음악 재생", "실내 온도 모니터링과 위험 알림", "QR 한 번으로 차량 ↔ 보호자 앱 연결"],
+    tags: ["Java", "Android Automotive", "Flutter"], git: "https://github.com/tmdghks-dev/petcare-drive",
+    visual: `<div class="visual v-pet"><img class="car" src="assets/petcare-car.jpg" alt="펫케어 차량 앱 화면: 달이를 달래는 중" loading="lazy">
+      <img class="phone-img" src="assets/petcare-phone.jpg" alt="펫케어 보호자 앱 홈 화면" loading="lazy"></div>` },
+  { id: "chzzk", c: "var(--a2)", idx: "02 / LIVE STREAMING", name: "치지직 클론",
+    short: "휴대폰으로 방송을 켜면 채팅·후원이 붙는 라이브 스트리밍 서비스.",
+    desc: "휴대폰 카메라로 방송을 켜면 실시간 채팅과 후원 결제가 붙는 스트리밍 서비스. 부하가 몰리면 서버가 2대에서 5대로 스스로 늘어나도록 오토스케일링까지 구성하고 검증했습니다.",
+    points: ["WebSocket 실시간 채팅 · 방송 송출", "Toss Payments 후원 결제", "Kubernetes HPA 2→5 Pod 자동 확장 · k6 부하 테스트"],
+    tags: ["Spring Boot", "WebSocket", "Toss Payments", "Kubernetes HPA", "k6"],
+    live: "https://chzzk.tmdghks.dev/broadcasts", git: "https://github.com/tmdghks-dev/chzzk",
+    visual: `<div class="visual screen"><div class="live"><b>● LIVE</b><span>👁 1,204</span></div>
+      <div class="pods">PODS<div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="chat"><div><em>달이</em>방송 화질 미쳤다</div><div><em>dev_kim</em>💰 5,000원 후원!</div><div><em>spring</em>지연 거의 없네요</div><div><em>jpa</em>ㅋㅋㅋㅋ 레전드</div></div></div>` },
+  { id: "interview", c: "var(--a1)", idx: "03 / WEB APP", name: "Interview Lab",
+    short: "주니어 백엔드 면접 152문항을 가입 없이 바로 연습.",
+    desc: "주니어 백엔드 면접 대비 152문항. Java·Spring·JPA·SQL·CS를 가입 없이 브라우저에서 바로 연습할 수 있게 만들었습니다.",
+    points: ["카테고리별 152문항", "가입 없이 브라우저에서 바로 사용", "답변을 가렸다가 펼쳐 보는 학습 흐름"],
+    tags: ["JavaScript"], git: "https://github.com/tmdghks-dev/interview-lab",
+    visual: `<div class="visual v-quiz"><div class="quiz"><div class="top"><span>JPA</span><span>37 / 152</span></div>
+      <div class="q">Q. N+1 문제는 왜 생기나요?</div>
+      <div class="a">연관 엔티티를 지연 로딩하면 목록 1번 조회 뒤 각 항목마다 추가 쿼리가 N번 나갑니다. fetch join이나 @EntityGraph로 해결합니다.</div>
+      <div class="bar2"><i></i></div></div></div>` },
+  { id: "shorturl", c: "var(--a4)", idx: "04 / FULLSTACK RUST", name: "숫자형 단축 URL",
+    short: "Rust 풀스택 Dioxus로 만든 단축 URL 서비스.",
+    desc: "Rust 풀스택 프레임워크 Dioxus로 만든 숫자형 단축 URL 서비스. Railway에 배포하고 Cloudflare로 도메인을 연결했습니다.",
+    points: ["긴 주소를 짧은 숫자 주소로 변환", "Dioxus 풀스택 (프론트·백 모두 Rust)", "Railway 배포 + Cloudflare 연결"],
+    tags: ["Rust", "Dioxus", "Railway", "Cloudflare"], git: "https://github.com/tmdghks-dev/dioxus-shorturl",
+    visual: `<div class="visual v-url"><div class="in">https://www.example.com/blog/2026/11/how-to-build-a-short-url-service</div>
+      <div class="arrow">↓</div><div class="outp"><span>tmdg.dev/1024</span><small>클릭 382</small></div></div>` },
+  { id: "tello", c: "var(--a3)", idx: "05 / COMPUTER VISION", award: "🥈 AI 드론경진대회 은상", name: "Tello 정밀 착륙",
+    short: "OpenCV로 파란 원 마커를 인식해 원을 그리며 날고 정밀 착륙.",
+    desc: "드론 카메라 영상에서 OpenCV로 파란 원 마커를 찾아 중심과의 오차를 계산하고, 오차 크기에 따라 속도를 조절하며 스스로 원을 그리며 비행한 뒤 마커 중심에 정밀 착륙합니다. AI 드론경진대회에서 은상을 받았습니다.",
+    points: ["OpenCV 색상 마스크로 파란 원 실시간 검출", "중심 오차 기반 비례 제어로 위치 보정", "안정 판정 후 자동 착륙"],
+    tags: ["Python", "OpenCV", "DJI Tello"], git: "https://github.com/tmdghks-dev/tello-circle-landing",
+    visual: `<div class="visual v-drone"><svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="floor" cx="50%" cy="50%" r="70%"><stop offset="0" stop-color="#2a2d36"/><stop offset="1" stop-color="#0b0d13"/></radialGradient>
+        <radialGradient id="shadow"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="400" height="250" fill="url(#floor)"/>
+      <path d="M0 62H400M0 125H400M0 188H400M100 0V250M200 0V250M300 0V250" stroke="rgba(255,255,255,.04)"/>
+      <circle cx="200" cy="125" r="44" fill="#1d4ed8"/><circle cx="200" cy="125" r="23" fill="#e8edf5"/>
+      <circle cx="200" cy="125" r="50" fill="none" stroke="#4ade80" stroke-width="2.5" opacity="0">
+        <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.55;.6;.95;1" dur="7s" repeatCount="indefinite"/></circle>
+      <circle class="path" cx="200" cy="125" r="92"/>
+      <path d="M14 26V14H26M374 14H386V26M386 224V236H374M26 236H14V224" fill="none" stroke="rgba(255,197,107,.6)" stroke-width="1.5"/>
+      <text class="hud" x="22" y="40">CAM · 960×720</text>
+      <text class="hud" x="22" y="226">PATROL · CIRCLE<animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;.58;.6;.98;1" dur="7s" repeatCount="indefinite"/></text>
+      <text class="hud ok" x="22" y="226" opacity="0">TARGET LOCKED · LANDING<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.58;.6;.98;1" dur="7s" repeatCount="indefinite"/></text>
+      <g>
+        <animateMotion dur="7s" repeatCount="indefinite" calcMode="linear" keyPoints="0;.86;1;1" keyTimes="0;.58;.78;1" path="M200,33 A92,92 0 1,1 199.9,33 L200,125"/>
+        <ellipse cx="6" cy="10" rx="26" ry="22" fill="url(#shadow)"/>
+        <g>
+          <animateTransform attributeName="transform" type="scale" values="1;1;.74;.74;1" keyTimes="0;.78;.88;.98;1" dur="7s" repeatCount="indefinite"/>
+          <path d="M-15-15L15 15M15-15L-15 15" stroke="#cfd4de" stroke-width="5" stroke-linecap="round"/>
+          <g fill="rgba(255,255,255,.07)" stroke="#e5e8ef" stroke-width="1.6">
+            <circle cx="-16" cy="-16" r="10"/><circle cx="16" cy="-16" r="10"/><circle cx="-16" cy="16" r="10"/><circle cx="16" cy="16" r="10"/></g>
+          <g stroke="rgba(255,255,255,.75)" stroke-width="2" stroke-linecap="round">
+            <g transform="translate(-16 -16)"><path d="M-8 0H8"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur=".14s" repeatCount="indefinite"/></path></g>
+            <g transform="translate(16 -16)"><path d="M-8 0H8"><animateTransform attributeName="transform" type="rotate" from="360" to="0" dur=".14s" repeatCount="indefinite"/></path></g>
+            <g transform="translate(-16 16)"><path d="M-8 0H8"><animateTransform attributeName="transform" type="rotate" from="360" to="0" dur=".14s" repeatCount="indefinite"/></path></g>
+            <g transform="translate(16 16)"><path d="M-8 0H8"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur=".14s" repeatCount="indefinite"/></path></g>
+          </g>
+          <rect x="-10" y="-13" width="20" height="26" rx="7" fill="#f4f5f8" stroke="#b9bfcc"/>
+          <rect x="-6" y="-4" width="12" height="11" rx="3" fill="#dfe3ea"/>
+          <circle cx="0" cy="-9" r="2.6" fill="#1b1e27"/><circle cx="0" cy="-9" r="1" fill="#7cc4ff"/>
+        </g>
+      </g>
+    </svg></div>` },
+  { id: "ruach", c: "var(--a6)", idx: "06 / CLIENT WORK", name: "루아흐 상담센터",
+    short: "실제 운영 중인 정신분석심리상담센터 홈페이지.",
+    desc: "정신분석심리상담센터 루아흐의 공식 홈페이지입니다. 센터 소개부터 상담 예약, 공지와 칼럼, 오시는 길까지 Firebase 서버리스로 만들어 실제로 운영하고 있습니다.",
+    points: ["실제 고객과 요구사항을 정리한 외주 프로젝트", "상담 예약 · 공지 · 칼럼 · 관리자 페이지", "Firebase Hosting + Firestore 서버리스 운영"],
+    tags: ["HTML", "JavaScript", "Firebase"], live: "https://ruach-counseling.web.app/", git: "https://github.com/tmdghks-dev/ruach-counseling",
+    visual: `<div class="visual v-site"><div class="browser"><div class="chrome"><i></i><i></i><i></i><span>ruach-counseling.web.app</span></div>
+      <img src="assets/ruach-site.jpg" alt="루아흐 상담센터 홈페이지 첫 화면" loading="lazy"></div></div>` },
+];
+
+const feature = document.getElementById("feature");
+const pgrid = document.getElementById("pgrid");
+
+pgrid.innerHTML = PROJECTS.map((p) => `
+  <button class="card" style="--c: ${p.c}" data-swarm="drop" data-id="${p.id}">
+    ${p.award ? `<span class="award">${p.award}</span>` : `<span class="idx">${p.idx}</span>`}
+    <h3>${p.name}</h3>
+    <p>${p.short}</p>
+    <div class="tags">${p.tags.slice(0, 3).map((t) => `<span class="tag">${t}</span>`).join("")}</div>
+    <span class="more">자세히 보기 →</span>
+  </button>`).join("");
+
+function show(id, scroll) {
+  const p = PROJECTS.find((x) => x.id === id);
+  feature.style.setProperty("--c", p.c);
+  feature.innerHTML = `
+    <div class="info">
+      ${p.award ? `<span class="award">${p.award}</span>` : `<span class="idx">${p.idx}</span>`}
+      <h3>${p.name}</h3>
+      <p>${p.desc}</p>
+      <ul>${p.points.map((x) => `<li>${x}</li>`).join("")}</ul>
+      <div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
+      <div class="links">${p.live ? `<a href="${p.live}" target="_blank" rel="noopener">라이브 데모 ↗</a>` : ""}<a href="${p.git}" target="_blank" rel="noopener">GitHub ↗</a></div>
+    </div>
+    ${p.visual}`;
+  feature.classList.remove("swap"); void feature.offsetWidth; feature.classList.add("swap");
+  pgrid.querySelectorAll(".card").forEach((c) => c.classList.toggle("active", c.dataset.id === id));
+  if (scroll && feature.getBoundingClientRect().top < 60) feature.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+pgrid.addEventListener("click", (e) => {
+  const card = e.target.closest(".card");
+  if (card) show(card.dataset.id, true);
+});
+show("petcare");
+</script>
+<script>
+// 터미널에 GitHub 오늘 커밋을 실시간으로 보여 준다 (공개 저장소만, 10분 캐시).
+(async () => {
+  const box = document.getElementById("ghToday");
+  const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const off = -now.getTimezoneOffset(), tz = (off >= 0 ? "+" : "-") + String(Math.floor(Math.abs(off) / 60)).padStart(2, "0") + ":" + String(Math.abs(off) % 60).padStart(2, "0");
+  const search = async (q) => {
+    const key = "gh:" + q, hit = (() => { try { return JSON.parse(sessionStorage.getItem(key)); } catch { return null; } })();
+    if (hit && Date.now() - hit.t < 600000) return hit.items;
+    const r = await fetch(`https://api.github.com/search/commits?q=${encodeURIComponent(q)}&sort=author-date&order=desc&per_page=4`, { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) throw new Error(r.status);
+    const items = (await r.json()).items.map((i) => ({ repo: i.repository.name, msg: i.commit.message.split("\n")[0], at: i.commit.author.date, url: i.html_url }));
+    try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), items })); } catch {}
+    return items;
+  };
+  const row = (c, showDay) => {
+    const d = new Date(c.at);
+    const when = showDay ? `${d.getMonth() + 1}/${d.getDate()}` : d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return `<a class="gh-row" href="${c.url}" target="_blank" rel="noopener"><span class="c">${when}</span><span class="r">${esc(c.repo)}</span><span class="m">${esc(c.msg)}</span></a>`;
+  };
+  try {
+    const todays = await search(`author:tmdghks-dev author-date:>=${today}T00:00:00${tz}`);
+    if (todays.length) {
+      box.innerHTML = todays.map((c) => row(c)).join("") + `<span class="ok">✔ 오늘 커밋 ${todays.length}${todays.length === 4 ? "+" : ""}개</span>`;
+    } else {
+      const recent = (await search("author:tmdghks-dev")).slice(0, 3);
+      box.innerHTML = `<span class="c">오늘은 아직 커밋이 없어요 · 최근 기록</span>\n` + recent.map((c) => row(c, true)).join("");
+    }
+  } catch {
+    box.innerHTML = `<span class="c">지금은 GitHub 기록을 불러올 수 없어요 →</span> <a class="ok" href="https://github.com/tmdghks-dev" target="_blank" rel="noopener">github.com/tmdghks-dev ↗</a>`;
+  }
+})();
+</script>
+<script>
+// 에이전트 스웜: 화면에 들어온 요소를 커서들이 하나씩 맡아 천천히 그린다.
+// 화면 밖으로 나간 요소는 다시 지워 두었다가, 스크롤로 돌아오면 또 그린다.
+(() => {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const AGENTS = [
+    ["Java", "#8b9dff"], ["Spring", "#6ee7c8"], ["JPA", "#ffc56b"], ["Docker", "#ff8fab"],
+    ["K8s", "#7cc4ff"], ["Rust", "#c4b5fd"], ["Python", "#a3e635"], ["SQL", "#fda4af"],
+  ];
+  const TYPE_MS = [30, 70];   // 글자 하나 치는 시간
+  const DROP_MS = 750;        // 끌어다 놓는 시간
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const box = (el) => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height };
+  };
+
+  const root = document.documentElement;
+  const layer = Object.assign(document.createElement("div"), { className: "swarm-layer" });
+  const toggle = Object.assign(document.createElement("button"), { className: "skip-hint", textContent: "✦ 그리기 효과 끄기" });
+  toggle.style.cursor = "pointer";
+  document.body.append(layer, toggle);
+  root.classList.add("swarming");
+
+  // 작업: state = hidden(지워짐) → queued(대기) → working(그리는 중) → done(완성)
+  const tasks = [...document.querySelectorAll("[data-swarm]")].filter((el) => el.getClientRects().length).map((el) => {
+    const t = { el, kind: el.dataset.swarm, state: "done", nodes: [] };
+    if (t.kind === "type") {
+      const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (walk.nextNode()) if (walk.currentNode.nodeValue.trim()) t.nodes.push([walk.currentNode, walk.currentNode.nodeValue]);
+    }
+    return t;
+  });
+  const hide = (t) => {
+    if (t.kind === "type") {
+      t.el.style.minHeight = t.el.offsetHeight + "px";
+      t.nodes.forEach(([n]) => (n.nodeValue = ""));
+    } else t.el.classList.remove("placed");
+    t.state = "hidden";
+  };
+  const reveal = (t) => {
+    if (t.kind === "type") { t.nodes.forEach(([n, txt]) => (n.nodeValue = txt)); t.el.style.minHeight = ""; }
+    t.el.classList.remove("working", "typing");
+    t.el.classList.add("placed");
+    t.state = "done";
+  };
+  tasks.forEach(hide);
+
+  let off = false;
+  const queue = [], waiters = [];
+  const wake = () => waiters.splice(0).forEach((r) => r());
+  const byEl = new Map(tasks.map((t) => [t.el, t]));
+
+  const io = new IntersectionObserver((entries) => {
+    entries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top).forEach((e) => {
+      const t = byEl.get(e.target);
+      if (e.isIntersecting) {
+        if (t.state === "hidden") { t.state = "queued"; queue.push(t); }
+      } else if (t.state === "queued") {
+        queue.splice(queue.indexOf(t), 1); t.state = "hidden";
+      } else if (t.state === "done") {
+        hide(t); // 화면 밖으로 나가면 지워 두고, 돌아오면 다시 그린다
+      }
+    });
+    wake();
+  }, { rootMargin: "0px 0px -8% 0px" });
+  tasks.forEach((t) => io.observe(t.el));
+
+  const cursors = AGENTS.map(([name, color], i) => {
+    const el = document.createElement("div");
+    el.className = "cur";
+    el.innerHTML = `<svg width="22" height="24" viewBox="0 0 22 24"><path d="M2 2v18l5-5 4 8 3-1.5-4-7.5h7z" fill="${color}" stroke="#0a0b12" stroke-width="1.5" stroke-linejoin="round"/></svg><span style="background:${color}">${name}</span>`;
+    layer.append(el);
+    const side = i % 4; // 화면 네 변 중 한 곳 밖에서 출발
+    const c = {
+      el, color,
+      x: side === 0 ? -40 : side === 1 ? innerWidth + 40 : rand(0, innerWidth),
+      y: scrollY + (side === 2 ? -40 : side === 3 ? innerHeight + 40 : rand(0, innerHeight)),
+    };
+    el.style.transform = `translate(${c.x}px,${c.y}px)`;
+    return c;
+  });
+
+  const place = (c, x, y) => { c.x = x; c.y = y; c.el.style.transform = `translate(${x}px,${y}px)`; };
+  const move = async (c, x, y, ms) => {
+    ms ??= Math.min(1100, 400 + Math.hypot(c.x - x, c.y - y) * 0.5);
+    const from = c.el.style.transform;
+    place(c, x, y);
+    await c.el.animate([{ transform: from }, { transform: c.el.style.transform }], { duration: ms, easing: "cubic-bezier(.35,.6,.25,1)" }).finished;
+  };
+  const sizeTag = (c, b) => {
+    const t = Object.assign(document.createElement("div"), { className: "size", textContent: `${Math.round(b.w)} × ${Math.round(b.h)}` });
+    t.style.cssText += `left:${b.x + b.w / 2}px;top:${b.y + b.h + 10}px;background:${c.color}`;
+    layer.append(t);
+    return t;
+  };
+
+  async function run(c, t) {
+    const el = t.el;
+    t.state = "working";
+    el.style.setProperty("--sc", c.color);
+    let b = box(el);
+    let tag;
+    try {
+      if (t.kind === "type") {
+        await move(c, b.x - 4, b.y + b.h / 2);
+        if (off) return;
+        b = box(el);
+        el.classList.add("working", "typing");
+        tag = sizeTag(c, b);
+        const total = t.nodes.reduce((s, [, txt]) => s + txt.length, 0);
+        let done = 0;
+        for (const [node, txt] of t.nodes) {
+          for (let i = 1; i <= txt.length; i++) {
+            if (off) return;
+            node.nodeValue = txt.slice(0, i);
+            place(c, b.x + Math.min(b.w, (b.w * ++done) / total), b.y + b.h / 2);
+            await sleep(rand(...TYPE_MS));
+          }
+        }
+      } else {
+        // 아래쪽 어딘가에서 집어 와서 제자리에 놓는다.
+        const dx = rand(-240, 240), dy = rand(110, 240), rot = rand(-5, 5);
+        const gx = Math.min(40, b.w / 2), gy = Math.min(24, b.h / 2);
+        await move(c, b.x + dx + gx, b.y + dy + gy);
+        if (off) return;
+        await sleep(100); // 잡는 순간 잠깐 멈칫
+        b = box(el);
+        el.classList.add("placed", "working");
+        tag = sizeTag(c, b);
+        await Promise.all([
+          el.animate(
+            [{ transform: `translate(${dx}px,${dy}px) rotate(${rot}deg) scale(1.04)`, boxShadow: "0 24px 50px rgba(0,0,0,.45)", opacity: .85 },
+             { transform: "none", boxShadow: "none", opacity: 1 }],
+            { duration: DROP_MS, easing: "cubic-bezier(.3,.7,.2,1)" }).finished,
+          move(c, b.x + gx, b.y + gy, DROP_MS),
+        ]);
+      }
+    } finally {
+      tag?.remove();
+      if (!off) {
+        reveal(t);
+        // 그리는 동안 화면 밖으로 나갔다면 바로 지워 두기
+        const r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) hide(t);
+      }
+    }
+  }
+
+  // 할 일이 없으면 지금 보이는 화면 안을 어슬렁거리며 기다린다.
+  async function idle(c) {
+    const top = scrollY, outside = c.y < top || c.y > top + innerHeight;
+    if (outside || Math.random() < 0.35) move(c, rand(innerWidth * 0.1, innerWidth * 0.9), top + rand(innerHeight * 0.15, innerHeight * 0.85), rand(1200, 2000));
+    await Promise.race([new Promise((r) => waiters.push(r)), sleep(rand(1400, 2600))]);
+  }
+
+  async function worker(c) {
+    while (!off) {
+      const t = queue.shift();
+      if (t) await run(c, t); else await idle(c);
+    }
+  }
+
+  // 효과 끄기: 전부 완성된 상태로 보여 주고 커서를 치운다.
+  toggle.onclick = (e) => {
+    e.stopPropagation();
+    off = true; wake(); io.disconnect();
+    tasks.forEach(reveal);
+    root.classList.remove("swarming");
+    layer.remove(); toggle.remove();
+  };
+  addEventListener("keydown", (e) => e.key === "Escape" && !off && toggle.click());
+
+  cursors.forEach(async (c, i) => { await sleep(150 + i * 150); worker(c); });
+})();
+</script>
+</body>
+</html>
