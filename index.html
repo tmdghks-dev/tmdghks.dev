@@ -426,7 +426,7 @@ const PROJECTS = [
     desc: "휴대폰 카메라로 방송을 켜면 실시간 채팅과 후원 결제가 붙는 스트리밍 서비스. 부하가 몰리면 서버가 2대에서 5대로 스스로 늘어나도록 오토스케일링까지 구성하고 검증했습니다.",
     points: ["WebSocket 실시간 채팅 · 방송 송출", "Toss Payments 후원 결제", "Kubernetes HPA 2→5 Pod 자동 확장 · k6 부하 테스트"],
     tags: ["Spring Boot", "WebSocket", "Toss Payments", "Kubernetes HPA", "k6"],
-    live: "https://chzzk.tmdghks.dev/broadcasts", git: "https://github.com/tmdghks-dev/chzzk",
+    live: "https://chzzk.tmdghks.dev/broadcasts", git: "https://github.com/tmdghks-dev/chzzk", dl: "/download/",
     visual: `<div class="visual screen"><div class="live"><b>● LIVE</b><span>👁 1,204</span></div>
       <div class="pods">PODS<div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
       <div class="chat"><div><em>달이</em>방송 화질 미쳤다</div><div><em>dev_kim</em>💰 5,000원 후원!</div><div><em>spring</em>지연 거의 없네요</div><div><em>jpa</em>ㅋㅋㅋㅋ 레전드</div></div></div>` },
@@ -517,7 +517,7 @@ function show(id, scroll) {
       <p>${p.desc}</p>
       <ul>${p.points.map((x) => `<li>${x}</li>`).join("")}</ul>
       <div class="tags">${p.tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
-      <div class="links">${p.live ? `<a href="${p.live}" target="_blank" rel="noopener">라이브 데모 ↗</a>` : ""}<a href="${p.git}" target="_blank" rel="noopener">GitHub ↗</a></div>
+      <div class="links">${p.live ? `<a href="${p.live}" target="_blank" rel="noopener">라이브 데모 ↗</a>` : ""}${p.dl ? `<a href="${p.dl}">앱 다운로드 ↓</a>` : ""}<a href="${p.git}" target="_blank" rel="noopener">GitHub ↗</a></div>
     </div>
     ${p.visual}`;
   feature.classList.remove("swap"); void feature.offsetWidth; feature.classList.add("swap");
