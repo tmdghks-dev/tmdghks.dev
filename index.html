@@ -281,6 +281,8 @@
   .stat b { font: 400 68px/1 var(--sans); letter-spacing: -.045em; }
   .stat b.kr { font: 600 58px/1 var(--kr); letter-spacing: -.06em; }
   .stat b small { position: relative; top: -.95em; font-size: .45em; color: var(--hot); margin-left: 2px; font-weight: 500; }
+  .live-dot { display: inline-block; width: 6px; height: 6px; margin-left: 6px; vertical-align: 1px; border-radius: 50%; background: #8ee3b0; animation: pulse 2s infinite; }
+  #commitWhen { color: var(--muted-d); font: 400 11px var(--mono); }
   .stat p { margin-top: 12px; color: #bdb5aa; font-size: 14px; line-height: 1.5; letter-spacing: -.02em; }
 
   /* 실시간 커밋 */
@@ -572,7 +574,7 @@
       <div class="tile stat" data-swarm="drop"><p class="k">Projects</p><div><b>7<small>+</small></b><p>직접 만들고 배포한 프로젝트</p></div></div>
       <div class="tile stat" data-swarm="drop"><p class="k">Platforms</p><div><b>5</b><p>치지직 하나를 웹·PC·폰 다섯 곳에</p></div></div>
       <div class="tile stat" data-swarm="drop"><p class="k">Award</p><div><b class="kr">은상</b><p>AI 드론경진대회</p></div></div>
-      <div class="tile stat" data-swarm="drop"><p class="k">Commits · 2026</p><div><b>300<small>+</small></b><p>올해 GitHub에 올린 커밋</p></div></div>
+      <div class="tile stat" data-swarm="drop"><p class="k"><span id="commitYear">Commits · 2026</span> <span class="live-dot" id="commitLive" hidden></span></p><div><b id="commitNum">300<small>+</small></b><p>올해 GitHub에 올린 커밋 <span id="commitWhen"></span></p></div></div>
 
       <div class="tile log" data-swarm="drop">
         <div class="bar"><i></i><i></i><i></i><span class="k">오늘의 커밋 · git log --today</span><span class="ping"><i></i>GitHub</span></div>
@@ -1416,15 +1418,16 @@ try {
   document.querySelectorAll(".stat b").forEach((b) => {
     const node = [...b.childNodes].find((n) => n.nodeType === 3 && /\d/.test(n.nodeValue));
     if (!node) return;
-    const m = node.nodeValue.match(/(\d+)(.*)/), target = +m[1], rest = m[2];
-    let done = false;
-    const run = () => {
-      if (done) return; done = true;
-      if (still) return;
+    const m = node.nodeValue.match(/(\d+)(.*)/), rest = m[2];
+    let target = +m[1], done = false;
+    const anim = (from, to) => {
       const t0 = performance.now(), dur = 1300;
-      const step = (now) => { const k = clamp((now - t0) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3); node.nodeValue = Math.round(target * e) + rest; if (k < 1) requestAnimationFrame(step); };
-      node.nodeValue = "0" + rest; requestAnimationFrame(step);
+      const step = (now) => { const k = clamp((now - t0) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3); node.nodeValue = Math.round(from + (to - from) * e).toLocaleString("en-US") + rest; if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
     };
+    const run = () => { if (done) return; done = true; if (still) { node.nodeValue = target.toLocaleString("en-US") + rest; return; } anim(0, target); };
+    // 실시간 값이 오면 지금 숫자에서 새 숫자로 이어서 센다
+    b.countTo = (v) => { const cur = parseInt(node.nodeValue.replace(/,/g, "")) || 0; target = v; if (done) still ? (node.nodeValue = v.toLocaleString("en-US") + rest) : anim(cur, v); };
     const tile = b.closest(".tile");
     new IntersectionObserver((es, io) => {
       if (!es[0].isIntersecting) return;
@@ -1433,6 +1436,28 @@ try {
       wait();
     }, { threshold: .4 }).observe(tile);
   });
+
+  // 커밋 수 실시간: 올해 tmdghks-dev가 공개 저장소에 올린 커밋 수 (GitHub 검색, 10분 캐시)
+  (async () => {
+    const b = document.getElementById("commitNum"); if (!b) return;
+    const y = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", year: "numeric" }).format(new Date());
+    document.getElementById("commitYear").textContent = "Commits · " + y;
+    const key = "gh:count:" + y;
+    let hit = null; try { hit = JSON.parse(sessionStorage.getItem(key)); } catch {}
+    let n = hit && Date.now() - hit.t < 600000 ? hit.n : null;
+    if (n == null) {
+      try {
+        const r = await fetch(`https://api.github.com/search/commits?q=${encodeURIComponent(`author:tmdghks-dev author-date:>=${y}-01-01`)}&per_page=1`, { headers: { Accept: "application/vnd.github+json" } });
+        if (!r.ok) return;                       // 실패하면 기본값(300+)을 그대로 둔다
+        n = (await r.json()).total_count;
+        try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), n })); } catch {}
+      } catch { return; }
+    }
+    b.querySelector("small")?.remove();          // 정확한 실제 숫자라 + 는 뗀다
+    b.countTo(n);
+    document.getElementById("commitLive").hidden = false;
+    document.getElementById("commitWhen").textContent = "· 실시간";
+  })();
 
   // 4. About 물결 커튼
   const about = document.getElementById("about"), top = document.getElementById("curtTop"), bot = document.getElementById("curtBot");
