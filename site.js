@@ -84,7 +84,14 @@
         const lang = Object.assign(document.createElement("button"), { className: "tg lang", type: "button" });
         lang.innerHTML = `<b class="${root.dataset.lang === "ko" ? "on" : ""}">KO</b><b class="${root.dataset.lang === "en" ? "on" : ""}">EN</b>`;
         lang.setAttribute("aria-label", "언어 바꾸기 / Change language");
-        lang.onclick = () => { store.set("lang", root.dataset.lang === "en" ? "ko" : "en"); const u = new URL(location.href); u.searchParams.delete("lang"); location.href = u.href; };
+        lang.onclick = () => {
+          store.set("lang", root.dataset.lang === "en" ? "ko" : "en");
+          // 주소의 ?lang= 은 지우고(남아 있으면 다시 그 언어로 돌아간다), #work 같은 해시도 지운다(해시만 바뀌면 새로 불러오지 않는다)
+          const u = new URL(location.href); u.searchParams.delete("lang"); u.hash = "";
+          try { sessionStorage.setItem("langswitch", "1"); sessionStorage.setItem("pt", "1"); } catch {}   // 다시 열 때 인트로 없이 바로, 주황 막으로 덮어서
+          if (still) { location.href = u.href; return; }
+          root.classList.add("pt-leave"); setTimeout(() => (location.href = u.href), 450);
+        };
         box.append(lang);
       }
       const th = Object.assign(document.createElement("button"), { className: "tg theme", type: "button" });
