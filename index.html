@@ -1023,7 +1023,7 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
     entries.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top).forEach((e) => {
       const t = byEl.get(e.target);
       if (e.isIntersecting) {
-        if (t.state === "hidden") { t.state = "queued"; queue.push(t); }
+        if (t.state === "hidden") { t.state = "queued"; queue.push(t); if (t.speed < 1) setTimeout(() => { if (t.state === "queued") { queue.splice(queue.indexOf(t), 1); reveal(t); } }, 900); }
       } else if (t.state === "queued") {
         queue.splice(queue.indexOf(t), 1); t.state = "hidden";
       } else if (t.state === "done") {
@@ -1113,7 +1113,7 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
         reveal(t);
         // 그리는 동안 화면 밖으로 나갔다면 바로 지워 두기
         const r = el.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > innerHeight) hide(t);
+        if (r.bottom < 0 || r.top > innerHeight * 1.25) hide(t); // 관찰 영역(아래 25%)과 같은 기준으로
       }
     }
   }
