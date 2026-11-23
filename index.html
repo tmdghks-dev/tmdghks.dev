@@ -96,13 +96,13 @@
   .obj.webgl .rot { display: none; }
 
   /* 흐르는 빛: 주황 빛 덩어리 세 개가 천천히 흘러 다니고, 하나는 마우스를 따라온다 */
-  .hero { background: #0c0a09; }
+  .hero { background: radial-gradient(120% 110% at 78% 72%, #9a230b 0%, #5a1306 38%, #2a0904 66%, #150605 100%); }   /* 바탕부터 붉게, 왼쪽 글씨 쪽만 어둡게 */
   .flow { position: absolute; inset: 0; z-index: 0; overflow: hidden; filter: blur(70px) saturate(1.2); }
   .flow i { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
-  .flow i:nth-child(1) { width: 70vw; height: 70vw; right: -20vw; bottom: -30vw; background: radial-gradient(closest-side, #ff6a2b, rgba(212,50,15,.6) 55%, transparent); animation: f1 18s ease-in-out infinite alternate; }
-  .flow i:nth-child(2) { width: 45vw; height: 45vw; right: 10vw; top: -10vw; background: radial-gradient(closest-side, rgba(196,40,12,.9), transparent); animation: f2 22s ease-in-out infinite alternate; }
-  .flow i:nth-child(3) { width: 35vw; height: 35vw; left: 20vw; bottom: -18vw; background: radial-gradient(closest-side, rgba(255,140,60,.55), transparent); animation: f3 26s ease-in-out infinite alternate; }
-  .flow i.m { width: 30vw; height: 30vw; left: calc(var(--mx, 70vw) - 15vw); top: calc(var(--my, 50vh) - 15vw); background: radial-gradient(closest-side, rgba(255,170,110,.35), transparent); transition: left .8s ease-out, top .8s ease-out; }
+  .flow i:nth-child(1) { width: 95vw; height: 95vw; right: -28vw; bottom: -40vw; background: radial-gradient(closest-side, #ff5a1f, rgba(232,52,14,.85) 50%, transparent); animation: f1 18s ease-in-out infinite alternate; }
+  .flow i:nth-child(2) { width: 62vw; height: 62vw; right: 4vw; top: -16vw; background: radial-gradient(closest-side, rgba(220,42,12,1), rgba(160,28,8,.5) 60%, transparent); animation: f2 22s ease-in-out infinite alternate; }
+  .flow i:nth-child(3) { width: 48vw; height: 48vw; left: 18vw; bottom: -22vw; background: radial-gradient(closest-side, rgba(255,120,50,.75), transparent); animation: f3 26s ease-in-out infinite alternate; }
+  .flow i.m { width: 30vw; height: 30vw; left: calc(var(--mx, 70vw) - 15vw); top: calc(var(--my, 50vh) - 15vw); background: radial-gradient(closest-side, rgba(255,160,100,.5), transparent); transition: left .8s ease-out, top .8s ease-out; }
   @keyframes f1 { to { transform: translate(-14vw, -10vw) scale(1.15); } }
   @keyframes f2 { to { transform: translate(-22vw, 18vw) scale(.85); } }
   @keyframes f3 { to { transform: translate(30vw, -12vw) scale(1.3); } }
