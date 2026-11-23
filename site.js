@@ -65,8 +65,10 @@
     const pt = Object.assign(document.createElement("div"), { className: "pt", innerHTML: "<span>&gt;_</span>" });
     pt.setAttribute("aria-hidden", "true");
     document.body.append(pt);
-    if (root.classList.contains("pt-arrive")) requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("pt-out")));
-    setTimeout(() => { pt.style.transition = "none"; root.classList.remove("pt-arrive", "pt-out"); void pt.offsetWidth; pt.style.transition = ""; }, 900);
+    // 막은 항상 위로만 움직인다: 덮을 땐 아래에서 위로, 걷힐 땐 위로 빠지고, 제자리(아래)로는 애니메이션 없이 돌아간다
+    const reset = () => { pt.style.transition = "none"; root.classList.remove("pt-arrive", "pt-out", "pt-leave"); void pt.offsetWidth; pt.style.transition = ""; };
+    const liftOff = () => { setTimeout(() => root.classList.add("pt-out"), 40); setTimeout(reset, 950); };
+    if (root.classList.contains("pt-arrive")) liftOff();
 
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[href]");
@@ -80,7 +82,12 @@
       root.classList.add("pt-leave");
       setTimeout(() => (location.href = url.href), 480);
     });
-    addEventListener("pageshow", (e) => { if (e.persisted) root.classList.remove("pt-leave"); });   // 뒤로 가기로 돌아왔을 때
+    // 뒤로 가기로 돌아왔을 때: 덮인 채 저장된 화면이면 아래로 내려가지 말고 위로 걷히게
+    addEventListener("pageshow", (e) => {
+      if (!e.persisted || !root.classList.contains("pt-leave")) return;
+      pt.style.transition = "none"; root.classList.remove("pt-leave"); root.classList.add("pt-arrive"); void pt.offsetWidth; pt.style.transition = "";
+      liftOff();
+    });
 
     // 하위 페이지 번역
     const SUB = window.SUB_EN;
