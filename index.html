@@ -378,6 +378,10 @@
   @keyframes floaty { 50% { transform: translateY(-6px); } }
 
   /* 상담센터: 실제 사이트 캡처 */
+  .visual.v-garim img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+  .v-garim .badge-g { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 8px;
+    background: rgba(12,10,9,.72); backdrop-filter: blur(6px); color: #f4efe8; font: 600 12px Pretendard, sans-serif; }
+  .v-garim .badge-g .ic { width: 14px; height: 14px; }
   .v-desk { display: grid; place-items: center end; padding-right: 5%; background: linear-gradient(160deg, #6f6cf5 0%, #4fb9c9 100%); }
   .visual.v-desk img { position: static; inset: auto; width: 54%; height: auto; border-radius: 18px; }
   .v-desk .modes { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
@@ -568,6 +572,9 @@
     deskmode: { name: "DeskMode", short: "A Mac app that rearranges windows when you plug in or unplug a monitor.",
       desc: "Dual monitors at home, a single MacBook at the café. DeskMode recognizes the connected displays and switches to the window layout you used with that setup. Radial menu on a hotkey or mouse button, smooth window animations, shipped as a beta.",
       points: ["Remembers and restores window layouts and Dock state per display setup", "Moves other apps' windows via the Accessibility API, robust to reconnect jitter", "Custom radial menu, sliding window animation, offline Ed25519 licensing"] },
+    garimshot: { name: "GarimShot", short: "A Mac capture app that blurs personal info the moment you take a screenshot.",
+      desc: "Take a screenshot and GarimShot finds Korean personal information — resident registration numbers, phone numbers, bank accounts, cards, addresses and faces — and masks it. Text and face recognition run on-device with Apple Vision, so images never leave the Mac, and every result is re-read to check that nothing leaks.",
+      points: ["Detects 13 kinds of personal info, correcting common OCR mix-ups", "On-device Vision OCR; long scrolling captures read in overlapping slices", "Irreversible mosaic with random noise, verified by re-reading the output"] },
     chzzk: { name: "Chzzk Clone", short: "Go live from a phone with chat and donations attached.",
       desc: "A live streaming service: start a broadcast from a phone camera with real-time chat and donation payments. Runs 24/7 on an OCI server with Kubernetes autoscaling verified from 2 to 5 pods.",
       points: ["Real-time chat and broadcasting over WebSocket", "Donations with Toss Payments", "Kubernetes HPA 2→5 pods, verified with k6 load tests"] },
@@ -790,12 +797,12 @@ const TOOLS = [["openjdk", "Java"], ["springboot", "Spring Boot"], ["hibernate",
 const USED = { openjdk: "치지직 클론 · 펫케어 드라이브", springboot: "치지직 클론", hibernate: "치지직 클론", thymeleaf: "치지직 클론",
   postgresql: "치지직 클론 · 숫자형 단축 URL", docker: "치지직 클론 · 숫자형 단축 URL", kubernetes: "치지직 클론 (OCI K3s)", k6: "치지직 클론 부하 테스트",
   githubactions: "치지직 앱 자동 빌드", cloudflare: "tmdghks.dev · 치지직 · 단축 URL", oracle: "치지직 서버 (OCI)", electron: "치지직 데스크톱 앱",
-  swift: "DeskMode", android: "펫케어 드라이브 · 치지직 Android 앱", flutter: "펫케어 드라이브 보호자 앱", firebase: "루아흐 상담센터 · 펫케어 드라이브",
+  swift: "DeskMode · 가림샷", android: "펫케어 드라이브 · 치지직 Android 앱", flutter: "펫케어 드라이브 보호자 앱", firebase: "루아흐 상담센터 · 펫케어 드라이브",
   rust: "숫자형 단축 URL", railway: "숫자형 단축 URL", python: "Tello 정밀 착륙", opencv: "Tello 정밀 착륙", javascript: "Interview Lab · 루아흐 상담센터" };
 if (document.documentElement.dataset.lang === "en") Object.assign(USED, { openjdk: "Chzzk Clone · PetCare Drive", springboot: "Chzzk Clone", hibernate: "Chzzk Clone", thymeleaf: "Chzzk Clone",
   postgresql: "Chzzk Clone · Numeric Short URL", docker: "Chzzk Clone · Numeric Short URL", kubernetes: "Chzzk Clone (K3s on OCI)", k6: "Chzzk Clone load tests",
   githubactions: "Chzzk app builds", cloudflare: "tmdghks.dev · Chzzk · Short URL", oracle: "Chzzk server (OCI)", electron: "Chzzk desktop app",
-  swift: "DeskMode", android: "PetCare Drive · Chzzk Android app", flutter: "PetCare Drive guardian app", firebase: "Ruach Counseling Center · PetCare Drive",
+  swift: "DeskMode · GarimShot", android: "PetCare Drive · Chzzk Android app", flutter: "PetCare Drive guardian app", firebase: "Ruach Counseling Center · PetCare Drive",
   rust: "Numeric Short URL", railway: "Numeric Short URL", python: "Tello Precision Landing", opencv: "Tello Precision Landing", javascript: "Interview Lab · Ruach Counseling Center" });
 document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) => `<span class="ic${s === "springboot" ? " on" : ""}" data-tool="${n}" data-used="${USED[s] || ""}"><img src="${ICON(s)}" alt=""><em>${n}</em></span>`).join("");
 
@@ -897,7 +904,14 @@ const PROJECTS = window.PROJECTS = [
     tags: ["Swift", "SwiftUI", "AppKit", "Accessibility API"], dl: "/deskmode/", git: "https://github.com/tmdghks-dev/deskmode",
     visual: `<div class="visual v-desk"><img src="/deskmode/assets/ring.png" alt="DeskMode 원형 메뉴" loading="lazy">
       <div class="modes"><span>${I("house")} 집 · 맥북 + 모니터</span><span>${I("coffee")} 외출 · 맥북만</span></div></div>` },
-  { id: "chzzk", c: "var(--a2)", idx: "03 / LIVE STREAMING", name: "치지직 클론",
+  { id: "garimshot", c: "var(--a3)", idx: "03 / MAC APP", name: "가림샷",
+    short: "캡처하면 주민번호·전화번호·계좌·얼굴을 찾아 저절로 가려 주는 맥 앱.",
+    desc: "화면을 찍는 순간 한국 개인정보를 찾아 모자이크해 주는 macOS 캡처 앱입니다. 글자와 얼굴 인식을 맥에 내장된 Vision으로 처리해 이미지가 밖으로 나가지 않고, 가린 결과를 다시 읽어 정보가 새지 않는지 스스로 검사합니다.",
+    points: ["주민·외국인등록번호, 전화, 계좌, 카드, 주소 등 13종 탐지 · OCR 오인식(ㅡ, O/0) 보정", "Vision 온디바이스 OCR · 긴 스크롤 캡처는 겹쳐 잘라 읽기", "되돌릴 수 없는 모자이크(잡음 섞기) · 가린 결과 재인식으로 유출 자체 검사"],
+    tags: ["Swift", "Vision", "CoreImage", "SwiftUI"], dl: "/garimshot/", git: "https://github.com/tmdghks-dev/garimshot",
+    visual: `<div class="visual v-garim"><img src="/garimshot/assets/after.png" alt="가림샷이 개인정보를 가린 캡처 (예시용 가짜 대화)" loading="lazy">
+      <span class="badge-g">${I("shield-check")} 9곳을 가렸어요</span></div>` },
+  { id: "chzzk", c: "var(--a2)", idx: "04 / LIVE STREAMING", name: "치지직 클론",
     short: "휴대폰으로 방송을 켜면 채팅·후원이 붙는 라이브 스트리밍 서비스.",
     desc: "휴대폰 카메라로 방송을 켜면 실시간 채팅과 후원 결제가 붙는 스트리밍 서비스. 부하가 몰리면 서버가 2대에서 5대로 스스로 늘어나도록 오토스케일링까지 구성하고 검증했습니다.",
     points: ["WebSocket 실시간 채팅 · 방송 송출", "Toss Payments 후원 결제", "Kubernetes HPA 2→5 Pod 자동 확장 · k6 부하 테스트"],
@@ -906,7 +920,7 @@ const PROJECTS = window.PROJECTS = [
     visual: `<div class="visual screen"><div class="live"><b>● LIVE</b><span>${I("eye")} 1,204</span></div>
       <div class="pods">PODS<div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
       <div class="chat"><div><em>달이</em>방송 화질 미쳤다</div><div><em>dev_kim</em>${I("coins")} 5,000원 후원!</div><div><em>spring</em>지연 거의 없네요</div><div><em>jpa</em>ㅋㅋㅋㅋ 레전드</div></div></div>` },
-  { id: "interview", c: "var(--a1)", idx: "04 / WEB APP", name: "Interview Lab",
+  { id: "interview", c: "var(--a1)", idx: "05 / WEB APP", name: "Interview Lab",
     short: "주니어 백엔드 면접 152문항을 가입 없이 바로 연습.",
     desc: "주니어 백엔드 면접 대비 152문항. Java·Spring·JPA·SQL·CS를 가입 없이 브라우저에서 바로 연습할 수 있게 만들었습니다.",
     points: ["카테고리별 152문항", "가입 없이 브라우저에서 바로 사용", "답변을 가렸다가 펼쳐 보는 학습 흐름"],
@@ -915,14 +929,14 @@ const PROJECTS = window.PROJECTS = [
       <div class="q">Q. N+1 문제는 왜 생기나요?</div>
       <div class="a">연관 엔티티를 지연 로딩하면 목록 1번 조회 뒤 각 항목마다 추가 쿼리가 N번 나갑니다. fetch join이나 @EntityGraph로 해결합니다.</div>
       <div class="bar2"><i></i></div></div></div>` },
-  { id: "shorturl", c: "var(--a4)", idx: "05 / FULLSTACK RUST", name: "숫자형 단축 URL",
+  { id: "shorturl", c: "var(--a4)", idx: "06 / FULLSTACK RUST", name: "숫자형 단축 URL",
     short: "Rust 풀스택 Dioxus로 만든 단축 URL 서비스.",
     desc: "Rust 풀스택 프레임워크 Dioxus로 만든 숫자형 단축 URL 서비스. Railway에 배포하고 Cloudflare로 도메인을 연결했습니다.",
     points: ["긴 주소를 짧은 숫자 주소로 변환", "Dioxus 풀스택 (프론트·백 모두 Rust)", "Railway 배포 + Cloudflare 연결"],
     tags: ["Rust", "Dioxus", "Railway", "Cloudflare"], git: "https://github.com/tmdghks-dev/dioxus-shorturl",
     visual: `<div class="visual v-url"><div class="in">https://www.example.com/blog/2026/11/how-to-build-a-short-url-service</div>
       <div class="arrow">↓</div><div class="outp"><span>tmdg.dev/1024</span><small>클릭 382</small></div></div>` },
-  { id: "tello", c: "var(--a3)", idx: "06 / COMPUTER VISION", award: "AI 드론경진대회 은상", name: "Tello 정밀 착륙",
+  { id: "tello", c: "var(--a3)", idx: "07 / COMPUTER VISION", award: "AI 드론경진대회 은상", name: "Tello 정밀 착륙",
     short: "OpenCV로 파란 원 마커를 인식해 원을 그리며 날고 정밀 착륙.",
     desc: "드론 카메라 영상에서 OpenCV로 파란 원 마커를 찾아 중심과의 오차를 계산하고, 오차 크기에 따라 속도를 조절하며 스스로 원을 그리며 비행한 뒤 마커 중심에 정밀 착륙합니다. AI 드론경진대회에서 은상을 받았습니다.",
     points: ["OpenCV 색상 마스크로 파란 원 실시간 검출", "중심 오차 기반 비례 제어로 위치 보정", "안정 판정 후 자동 착륙"],
@@ -962,7 +976,7 @@ const PROJECTS = window.PROJECTS = [
         </g>
       </g>
     </svg></div>` },
-  { id: "ruach", c: "var(--a6)", idx: "07 / CLIENT WORK", name: "루아흐 상담센터",
+  { id: "ruach", c: "var(--a6)", idx: "08 / CLIENT WORK", name: "루아흐 상담센터",
     short: "실제 운영 중인 정신분석심리상담센터 홈페이지.",
     desc: "정신분석심리상담센터 루아흐의 공식 홈페이지입니다. 센터 소개부터 상담 예약, 공지와 칼럼, 오시는 길까지 Firebase 서버리스로 만들어 실제로 운영하고 있습니다.",
     points: ["실제 고객과 요구사항을 정리한 외주 프로젝트", "상담 예약 · 공지 · 칼럼 · 관리자 페이지", "Firebase Hosting + Firestore 서버리스 운영"],
@@ -978,6 +992,7 @@ document.getElementById("sig").innerHTML = I("asterisk");
 const BG = {
   petcare:   "radial-gradient(80% 90% at 25% 15%, #f2c14e 0%, #d08a1e 45%, #7a4a0c 100%)",
   deskmode:  "radial-gradient(80% 90% at 75% 10%, #5f8f6e 0%, #2d5a40 50%, #12261b 100%)",
+  garimshot: "radial-gradient(80% 90% at 30% 10%, #e07a4f 0%, #9a3b1f 50%, #2a0f06 100%)",
   chzzk:     "radial-gradient(70% 80% at 80% 90%, #ff5a1f 0%, #8a1d08 40%, #120806 85%)",
   interview: "radial-gradient(80% 90% at 20% 10%, #4a5f8f 0%, #23314f 50%, #0d1220 100%)",
   shorturl:  "radial-gradient(80% 90% at 70% 15%, #c0473a 0%, #7e1f17 50%, #2a0806 100%)",
@@ -988,6 +1003,7 @@ const BG = {
 // 카드마다 재질, 배경 글자, 떠다니는 칩 두 개 (모두 실제 프로젝트 내용)
 const EXTRA = {
   petcare:   { glow: "#ffcf6b", mat: "corduroy", word: "PETCARE",  chips: [["dog", "짖음 감지 → 보호자 목소리"], ["qr-code", "차량 ↔ 보호자 앱 연결"]] },
+  garimshot: { glow: "#ffb38a", mat: "grid",     word: "GARIM",    chips: [["scan", "찍는 순간 개인정보 탐지"], ["shield-check", "내 맥 안에서만 처리"]] },
   deskmode:  { glow: "#8dffbe", mat: "blinds",   word: "DESKMODE", chips: [["command", "단축키로 여는 원형 메뉴"], ["layout-grid", "모니터 구성마다 창 배치"]] },
   chzzk:     { glow: "#ff5a1f", mat: "streak",   word: "LIVE",     chips: [["radio", "WebSocket 실시간 채팅"], ["trending-up", "HPA Pod 2 → 5"]] },
   interview: { glow: "#8ba4ff", mat: "grid",     word: "INTERVIEW", chips: [["circle-help", "백엔드 면접 152문항"], ["mouse-pointer-click", "가입 없이 바로 연습"]] },
