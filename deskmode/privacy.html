@@ -1,24 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DeskMode 개인정보 처리방침 · tmdghks.dev</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<title>DeskMode 개인정보 처리방침</title>
+<meta name="description" content="DeskMode는 개인정보를 수집하지 않아요.">
+<meta name="theme-color" content="#0c0a09">
+<link rel="icon" href="/deskmode/assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/site.css">
 <style>
-  body { margin: 0; background: #07080c; color: #eceef4; font-family: Pretendard, -apple-system, sans-serif; line-height: 1.8; }
-  main { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
-  a { color: #8b9dff; }
-  h1 { font-size: 28px; } h2 { font-size: 19px; margin-top: 32px; } p { color: #8b90a0; }
+  .doc { max-width: 760px; }
+  .doc h2 { margin-top: 44px; font: 600 22px var(--kr); letter-spacing: -.04em; }
+  .doc p { margin-top: 10px; color: #3d3833; line-height: 1.85; letter-spacing: -.02em; }
+  .doc a { text-decoration: underline; text-underline-offset: 3px; }
 </style>
 </head>
 <body>
-<main>
-  <p><a href="./">← DeskMode</a></p>
-  <h1>DeskMode 개인정보 처리방침</h1>
-  <p>시행일: 2026년 11월 23일 (베타)</p>
+<header class="top">
+  <div class="flow" aria-hidden="true"><i></i><i></i><i></i></div>
+  <nav><div class="wrap">
+    <a class="logo" href="/"><span class="mk">&gt;_</span>tmdghks.dev</a>
+    <div class="nav-links"><a href="/#work">Work</a><a href="/apps/" aria-current="page">Apps</a><a href="/#about">About</a></div>
+    <a class="nav-cta" href="/#contact">Contact ➜</a>
+  </div></nav>
+  <div class="wrap head solo" style="padding-bottom:70px">
+    <div>
+      <p class="crumb"><a href="/apps/">Apps</a> / <a href="/deskmode/">DeskMode</a> / 개인정보</p>
+      <p class="lbl">Privacy</p>
+      <h1>DeskMode<br><em>개인정보 처리방침</em></h1>
+      <p class="note">시행일: 2026년 11월 23일 (베타)</p>
+    </div>
+  </div>
+</header>
+<main class="wrap sec doc" style="padding-top:40px">
   <h2>1. 수집하는 정보</h2>
-  <p>DeskMode는 개인정보를 수집하지 않아요. 앱이 저장하는 창 배치(앱 이름, 창 제목, 위치와 크기)와 설정은 사용자의 맥 안(~/Library/Application Support/DeskMode)에만 저장되고 외부로 전송되지 않아요.</p>
+  <p>DeskMode는 개인정보를 수집하지 않아요. 앱이 저장하는 창 배치(앱 이름, 창 제목, 위치와 크기)와 설정은 사용자의 맥 안(<code>~/Library/Application Support/DeskMode</code>)에만 저장되고 외부로 전송되지 않아요.</p>
   <h2>2. 권한 사용</h2>
   <p>손쉬운 사용 권한은 다른 앱 창의 위치와 크기를 읽고 옮기는 데에만 써요. 화면 내용이나 키 입력은 수집하지 않아요.</p>
   <h2>3. 고정 브라우저</h2>
@@ -26,5 +47,9 @@
   <h2>4. 문의</h2>
   <p><a href="https://github.com/tmdghks-dev/deskmode/issues">GitHub Issues</a>로 남겨 주세요.</p>
 </main>
+<footer>
+  <div class="wrap row"><span>© 2026 승환 · tmdghks.dev</span><span><a href="/#work">Work</a><a href="/apps/">Apps</a><a href="mailto:contact@tmdghks.dev">contact@tmdghks.dev</a></span></div>
+  <div class="wordmark" aria-hidden="true">tmdghks<b>.</b>dev</div>
+</footer>
 </body>
 </html>

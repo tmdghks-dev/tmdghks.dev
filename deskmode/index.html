@@ -1,140 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DeskMode · 모니터를 꽂고 빼도, 창은 제자리로</title>
 <meta name="description" content="집에서는 듀얼 모니터, 카페에서는 맥북 하나. 화면 구성이 바뀌면 창 배치를 알아서 바꿔 주는 맥 앱 DeskMode 베타.">
 <meta property="og:title" content="DeskMode · 모니터를 꽂고 빼도, 창은 제자리로">
-<meta property="og:description" content="화면 구성이 바뀌면 창 배치를 알아서 바꿔 주는 맥 앱. 베타 기간 무료.">
+<meta property="og:description" content="집에서는 듀얼 모니터, 카페에서는 맥북 하나. 화면 구성이 바뀌면 창 배치를 알아서 바꿔 주는 맥 앱 DeskMode 베타.">
 <meta property="og:image" content="https://tmdghks.dev/deskmode/assets/ring.png">
-<link rel="icon" href="assets/icon.png">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<meta name="theme-color" content="#0c0a09">
+<link rel="icon" href="/deskmode/assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fragment+Mono&display=swap">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="/site.css">
 <style>
-  :root {
-    --bg: #07080c; --surface: #11131b; --line: #1f2230;
-    --text: #eceef4; --muted: #8b90a0; --dim: #4e5466;
-    --a1: #8b9dff; --a2: #6ee7c8; --a3: #ffc56b; --a4: #ff8fab;
-    --display: "Space Grotesk", Pretendard, sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, monospace;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: Pretendard, -apple-system, system-ui, sans-serif;
-    background-image: radial-gradient(900px 500px at 80% -10%, rgba(139,157,255,.16), transparent 60%),
-                      radial-gradient(700px 400px at -10% 10%, rgba(110,231,200,.10), transparent 60%); }
-  a { color: inherit; }
-  .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 20px 80px; }
-  nav { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 14px; }
-  nav a { text-decoration: none; color: var(--muted); }
-  nav a:hover { color: var(--text); }
-
-  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; margin-top: 56px; }
-  .eyebrow { font-family: var(--mono); color: var(--a1); font-size: 13px; letter-spacing: .1em; display: flex; align-items: center; gap: 10px; }
-  .eyebrow img { width: 28px; height: 28px; }
-  .pill { padding: 2px 8px; border-radius: 6px; background: var(--a3); color: #1a1205; font-weight: 800; font-size: 11px; letter-spacing: 0; }
-  h1 { font-family: var(--display); font-size: clamp(36px, 6vw, 58px); line-height: 1.08; margin: 14px 0 16px; letter-spacing: -.03em; }
-  h1 span { background: linear-gradient(90deg, var(--a1), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .lead { color: var(--muted); font-size: 17px; line-height: 1.75; max-width: 520px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-weight: 800; text-decoration: none; transition: .2s; }
-  .btn.primary { background: linear-gradient(135deg, var(--a1), #6d7dff); color: #070912; box-shadow: 0 16px 40px -18px var(--a1); }
-  .btn.primary:hover { transform: translateY(-2px); }
-  .btn.ghost { border: 1px solid var(--line); color: var(--text); }
-  .btn.ghost:hover { border-color: var(--muted); }
-  .note { margin-top: 12px; color: var(--dim); font-family: var(--mono); font-size: 12px; }
-  .ring { width: 100%; max-width: 380px; justify-self: center; border-radius: 28px; box-shadow: 0 40px 90px -40px rgba(139,157,255,.6); }
-
-  h2 { font-family: var(--display); margin: 80px 0 8px; font-size: 26px; letter-spacing: -.02em; }
-  .sub { color: var(--muted); margin: 0 0 26px; line-height: 1.7; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .card { padding: 22px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
-  .card .ico { font-size: 24px; }
-  .card b { display: block; font-family: var(--display); font-size: 17px; margin: 10px 0 6px; }
-  .card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.65; }
-  .shot { width: 100%; border-radius: 16px; border: 1px solid var(--line); margin-top: 8px; }
-
-  ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
-  ol.steps li { counter-increment: s; position: relative; padding: 16px 0 16px 50px; border-top: 1px solid var(--line); color: var(--muted); line-height: 1.7; }
-  ol.steps li b { color: var(--text); }
-  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 14px; width: 32px; height: 32px; border-radius: 10px;
-    background: var(--surface); border: 1px solid var(--line); color: var(--a1); display: grid; place-items: center; font-family: var(--mono); font-weight: 600; }
-  details { border-top: 1px solid var(--line); padding: 14px 0; }
-  summary { cursor: pointer; font-weight: 700; }
-  details p { color: var(--muted); line-height: 1.8; margin: 8px 0 0; }
-  code { font-family: var(--mono); font-size: 13px; color: var(--a3); }
-  .feedback { margin-top: 80px; padding: 32px; border-radius: 20px; border: 1px dashed var(--line); text-align: center; }
-  .feedback h2 { margin: 0 0 8px; }
-  .feedback .cta { justify-content: center; }
-  footer { margin-top: 60px; color: var(--dim); font-family: var(--mono); font-size: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
-  footer a { color: var(--dim); }
-  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; margin-top: 36px; } .ring { max-width: 300px; } }
+  .dm-ring { position: relative; display: grid; place-items: center; }
+  .dm-ring::before { content: ""; position: absolute; width: 90%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(closest-side, rgba(141,255,190,.35), transparent 70%); filter: blur(30px); animation: breathe 7s ease-in-out infinite; }
+  .dm-ring img { position: relative; width: min(100%, 440px); border-radius: 28px; filter: drop-shadow(0 40px 60px rgba(0,0,0,.6)); animation: float 7s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-10px) rotate(-1.5deg); } }
+  .appid { display: inline-flex; align-items: center; gap: 12px; }
+  .appid img { width: 38px; height: 38px; border-radius: 9px; }
+  .modes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+  .modes span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font: 500 13.5px var(--kr); background: rgba(244,239,232,.1); backdrop-filter: blur(8px); letter-spacing: -.02em; }
+  .modes span .ic { width: 15px; height: 15px; color: var(--hot-soft); }
+  .shotwrap { --bg: radial-gradient(80% 90% at 75% 10%, #5f8f6e 0%, #2d5a40 50%, #12261b 100%); --glow: #8dffbe; }
+  .shotwrap img { width: min(100%, 720px); }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <nav><a href="/apps/">← 모든 앱</a><a href="https://github.com/tmdghks-dev/deskmode">GitHub ↗</a></nav>
-
-  <section class="hero">
+<header class="top">
+  <div class="flow" aria-hidden="true"><i></i><i></i><i></i></div>
+  <nav><div class="wrap">
+    <a class="logo" href="/"><span class="mk">&gt;_</span>tmdghks.dev</a>
+    <div class="nav-links"><a href="/#work">Work</a><a href="/apps/" aria-current="page">Apps</a><a href="/#about">About</a></div>
+    <a class="nav-cta" href="/#contact">Contact ➜</a>
+  </div></nav>
+  <div class="wrap head">
     <div>
-      <div class="eyebrow"><img src="assets/icon.png" alt="">DESKMODE · MAC APP <span class="pill">BETA</span></div>
-      <h1>모니터를 꽂고 빼도,<br><span>창은 제자리로.</span></h1>
+      <p class="crumb"><a href="/apps/">Apps</a> / DeskMode</p>
+      <div class="appid"><img src="/deskmode/assets/icon.png" alt=""><p class="lbl">DeskMode · Mac app</p><span class="badge">BETA</span></div>
+      <h1>모니터를 꽂고 빼도,<br><em>창은 제자리로.</em></h1>
       <p class="lead">집에서는 듀얼 모니터, 카페에서는 맥북 하나. DeskMode가 화면 구성을 알아보고, 창 배치를 그 자리에 맞게 알아서 바꿔 줘요.</p>
+      <div class="modes"><span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /> </svg>집 · 맥북 + 모니터</span><span><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /> </svg>외출 · 맥북만</span></div>
       <div class="cta">
-        <a class="btn primary" href="https://github.com/tmdghks-dev/deskmode/releases/latest/download/DeskMode.dmg">⬇︎ 무료로 받기 (.dmg)</a>
-        <a class="btn ghost" href="#install">설치 방법</a>
+        <a class="pill hot down" href="https://github.com/tmdghks-dev/deskmode/releases/latest/download/DeskMode.dmg">무료로 받기 · .dmg</a>
+        <a class="pill glass" href="#install">설치 방법</a>
       </div>
       <p class="note">macOS 14 이상 · Apple Silicon / Intel · 베타 기간 무료</p>
     </div>
-    <img class="ring" src="assets/ring.png" alt="DeskMode 원형 메뉴: 집, 외출, 저장, 맞추기, 바둑판, 캡처, 브라우저, 되돌리기">
+    <div class="dm-ring"><img src="/deskmode/assets/ring.png" alt="DeskMode 원형 메뉴: 집, 외출, 저장, 맞추기, 바둑판, 캡처, 브라우저, 되돌리기"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="sec">
+    <div class="sec-head"><div><p class="lbl">Features</p><h2>매일 하던 창 정리를<br>그만하세요<sup>*</sup></h2></div>
+      <p class="sub">모니터를 뺄 때마다 창이 한쪽으로 몰리고, 다시 꽂아도 제자리로 안 돌아오던 그 문제를 해결해요.</p></div>
+    <div class="feats">
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /> </svg></span><b>집 · 외출 모드</b><p>화면 구성마다 창 배치를 기억했다가, 모니터를 연결하거나 빼는 순간 맞는 배치로 바꿔요.</p></div>
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" /> <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" /> <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" /> <path d="M17.599 6.5a3 3 0 0 0 .399-1.375" /> <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5" /> <path d="M3.477 10.896a4 4 0 0 1 .585-.396" /> <path d="M19.938 10.5a4 4 0 0 1 .585.396" /> <path d="M6 18a4 4 0 0 1-1.967-.516" /> <path d="M19.967 17.484A4 4 0 0 1 18 18" /> </svg></span><b>알아서 기억</b><p>창을 옮기면 조용히 기억해요. Dock에 내려 둔 창과 숨긴 앱까지 그대로 돌려놔요.</p></div>
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <circle cx="12" cy="12" r="10" /> <circle cx="12" cy="12" r="6" /> <circle cx="12" cy="12" r="2" /> </svg></span><b>원형 메뉴</b><p><kbd>⌥`</kbd> 단축키, 마우스 옆 버튼, 키+클릭으로 어디서든 열어요. 칸에 넣을 기능은 직접 골라요.</p></div>
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <rect x="2" y="4" width="20" height="16" rx="2" /> <path d="M10 4v4" /> <path d="M2 8h20" /> <path d="M6 4v4" /> </svg></span><b>지금 창 옮기기</b><p>왼쪽·오른쪽 절반, 화면 가득, 가운데로, 다음 화면으로. 창은 순간이동 대신 부드럽게 미끄러져요.</p></div>
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /> </svg></span><b>종료한 앱도 다시</b><p>원하면 그 모드에서 쓰던 앱이 꺼져 있을 때 다시 열고 제자리에 놓아요.</p></div>
+      <div class="feat"><span class="icon"><svg class="ic" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" > <path d="M12 17v5" /> <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /> </svg></span><b>고정 브라우저 · 캡처</b><p>다른 앱을 눌러도 숨지 않는 작은 브라우저, 원형 메뉴에서 바로 화면 캡처.</p></div>
+    </div>
   </section>
 
-  <h2>매일 하던 창 정리를 그만하세요</h2>
-  <p class="sub">모니터를 뺄 때마다 창이 한쪽으로 몰리고, 다시 꽂아도 제자리로 안 돌아오던 그 문제를 해결해요.</p>
-  <div class="grid">
-    <div class="card"><span class="ico">🏠</span><b>집 · 외출 모드</b><p>화면 구성마다 창 배치를 기억했다가, 모니터를 연결하거나 빼는 순간 맞는 배치로 바꿔요.</p></div>
-    <div class="card"><span class="ico">🧠</span><b>알아서 기억</b><p>창을 옮기면 조용히 기억해요. Dock에 내려 둔 창과 숨긴 앱까지 그대로 돌려놔요.</p></div>
-    <div class="card"><span class="ico">🎯</span><b>원형 메뉴</b><p>⌥` 단축키, 마우스 옆 버튼, 키+클릭으로 어디서든 열어요. 칸에 넣을 기능은 직접 골라요.</p></div>
-    <div class="card"><span class="ico">🪟</span><b>지금 창 옮기기</b><p>왼쪽·오른쪽 절반, 화면 가득, 가운데로, 다음 화면으로. 창은 순간이동 대신 부드럽게 미끄러져요.</p></div>
-    <div class="card"><span class="ico">🔁</span><b>종료한 앱도 다시</b><p>원하면 그 모드에서 쓰던 앱이 꺼져 있을 때 다시 열고 제자리에 놓아요.</p></div>
-    <div class="card"><span class="ico">📌</span><b>고정 브라우저 · 캡처</b><p>다른 앱을 눌러도 숨지 않는 작은 브라우저, 원형 메뉴에서 바로 화면 캡처.</p></div>
-  </div>
+  <section class="sec">
+    <div class="sec-head"><div><p class="lbl">Customize</p><h2>원하는 대로 꾸미는<br>원형 메뉴<sup>*</sup></h2></div>
+      <p class="sub">2–8칸까지, 모드와 창 정리, 지금 쓰는 창 옮기기 중에서 골라 순서까지 정할 수 있어요.</p></div>
+    <div class="stage shotwrap"><div class="mood"></div><img src="/deskmode/assets/settings-ring.png" alt="DeskMode 원형 메뉴 설정 화면" loading="lazy"></div>
+  </section>
 
-  <h2>원하는 대로 꾸미는 원형 메뉴</h2>
-  <p class="sub">2–8칸까지, 모드와 창 정리, 지금 쓰는 창 옮기기 중에서 골라 순서까지 정할 수 있어요.</p>
-  <img class="shot" src="assets/settings-ring.png" alt="DeskMode 원형 메뉴 설정 화면" loading="lazy">
+  <section class="sec" id="install">
+    <div class="sec-head"><div><p class="lbl">Install</p><h2>3분이면 시작해요<sup>*</sup></h2></div></div>
+    <ol class="steps">
+      <li><b>DeskMode.dmg</b>를 열고 DeskMode를 <b>Applications</b> 폴더로 끌어 놓아요.</li>
+      <li>처음 열 때 "확인할 수 없음" 경고가 뜨면 <b>시스템 설정 → 개인정보 보호 및 보안</b> 맨 아래의 <b>그래도 열기</b>를 눌러요. 공증 전 베타라 처음 한 번만 필요해요.</li>
+      <li>안내에 따라 <b>손쉬운 사용</b>(macOS 15 이상은 '기기 제어 및 데이터 접근') 권한을 켜요.</li>
+      <li>지금 창 배치를 <b>'집'</b>으로 저장하고, 모니터를 뺀 상태에서 <b>'외출'</b>로 저장해요. 이제 꽂고 빼기만 하면 돼요.</li>
+    </ol>
+  </section>
 
-  <h2 id="install">설치하고 시작하기</h2>
-  <p class="sub">3분이면 끝나요.</p>
-  <ol class="steps">
-    <li><b>DeskMode.dmg</b>를 열고 DeskMode를 <b>Applications</b> 폴더로 끌어 놓아요.</li>
-    <li>처음 열 때 "확인할 수 없음" 경고가 뜨면 <b>시스템 설정 → 개인정보 보호 및 보안</b> 맨 아래의 <b>그래도 열기</b>를 눌러요. 아직 Apple 공증 전인 베타라 처음 한 번만 필요해요.</li>
-    <li>안내에 따라 <b>손쉬운 사용</b>(macOS 15 이상은 '기기 제어 및 데이터 접근') 권한을 켜요.</li>
-    <li>지금 창 배치를 <b>'집'</b>으로 저장하고, 모니터를 뺀 상태에서 <b>'외출'</b>로 저장해요. 이제 꽂고 빼기만 하면 돼요.</li>
-  </ol>
-
-  <h2>자주 묻는 질문</h2>
-  <details><summary>왜 손쉬운 사용 권한이 필요한가요?</summary>
-    <p>다른 앱 창의 위치와 크기를 옮기려면 macOS의 이 권한이 꼭 필요해요. DeskMode는 창의 위치와 크기만 다루고, 화면 내용이나 키 입력은 읽지 않아요.</p></details>
-  <details><summary>데이터가 외부로 나가나요?</summary>
-    <p>아니요. 창 배치와 설정은 내 맥(<code>~/Library/Application Support/DeskMode</code>)에만 저장되고, 어떤 서버로도 보내지 않아요.</p></details>
-  <details><summary>모니터가 두 대 이상이어도 되나요?</summary>
-    <p>네. 연결된 모니터 조합마다 따로 모드를 저장할 수 있어요. 맥북을 덮고 외부 모니터만 쓰는 경우도 따로 기억해요.</p></details>
-  <details><summary>앱스토어에는 왜 없나요?</summary>
-    <p>앱스토어 앱은 다른 앱의 창을 옮길 수 없게 막혀 있어서, 이렇게 직접 배포해요.</p></details>
-  <details><summary>베타가 끝나면 유료인가요?</summary>
-    <p>정식 출시 후에는 한 번 결제로 계속 쓰는 라이선스로 판매할 예정이에요. 베타 때 의견을 보내 주신 분께는 혜택을 드릴게요.</p></details>
-
-  <div class="feedback">
-    <h2>써 보고 알려 주세요</h2>
-    <p class="sub">불편한 점, 원하는 기능, 버그 무엇이든 좋아요. 다음 버전에 바로 반영할게요.</p>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/tmdghks-dev/deskmode/issues/new">의견 남기기 →</a>
-      <a class="btn ghost" href="https://github.com/tmdghks-dev/deskmode/issues">다른 의견 보기</a>
+  <section class="sec">
+    <div class="sec-head"><div><p class="lbl">FAQ</p><h2>자주 묻는 질문</h2></div></div>
+    <div class="faq">
+      <details><summary>왜 손쉬운 사용 권한이 필요한가요?</summary><p>다른 앱 창의 위치와 크기를 옮기려면 macOS의 이 권한이 꼭 필요해요. DeskMode는 창의 위치와 크기만 다루고, 화면 내용이나 키 입력은 읽지 않아요.</p></details>
+      <details><summary>데이터가 외부로 나가나요?</summary><p>아니요. 창 배치와 설정은 내 맥(<code>~/Library/Application Support/DeskMode</code>)에만 저장되고, 어떤 서버로도 보내지 않아요.</p></details>
+      <details><summary>모니터가 두 대 이상이어도 되나요?</summary><p>네. 연결된 모니터 조합마다 따로 모드를 저장할 수 있어요. 맥북을 덮고 외부 모니터만 쓰는 경우도 따로 기억해요.</p></details>
+      <details><summary>앱스토어에는 왜 없나요?</summary><p>앱스토어 앱은 다른 앱의 창을 옮길 수 없게 막혀 있어서, 이렇게 직접 배포해요.</p></details>
+      <details><summary>베타가 끝나면 유료인가요?</summary><p>정식 출시 후에는 한 번 결제로 계속 쓰는 라이선스로 판매할 예정이에요. 베타 때 의견을 보내 주신 분께는 혜택을 드릴게요.</p></details>
     </div>
-  </div>
+  </section>
 
-  <footer><span>© 2026 tmdghks.dev</span><a href="privacy.html">개인정보 처리방침</a><a href="https://github.com/tmdghks-dev/deskmode/releases">버전 기록</a></footer>
-</div>
+  <section class="end">
+    <div class="flow" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="lbl" style="color:rgba(244,239,232,.6)">Feedback</p>
+    <h2 style="margin-top:14px">써 보고 알려 주세요</h2>
+    <p>불편한 점, 원하는 기능, 버그 무엇이든 좋아요. 다음 버전에 바로 반영할게요.</p>
+    <div class="cta">
+      <a class="pill light" href="https://github.com/tmdghks-dev/deskmode/issues/new">의견 남기기</a>
+      <a class="pill glass" href="https://github.com/tmdghks-dev/deskmode/issues">다른 의견 보기</a>
+      <a class="pill glass" href="/deskmode/privacy.html">개인정보 처리방침</a>
+      <a class="pill glass" href="https://github.com/tmdghks-dev/deskmode/releases">버전 기록</a>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="wrap row"><span>© 2026 승환 · tmdghks.dev</span><span><a href="/#work">Work</a><a href="/apps/">Apps</a><a href="mailto:contact@tmdghks.dev">contact@tmdghks.dev</a></span></div>
+  <div class="wordmark" aria-hidden="true">tmdghks<b>.</b>dev</div>
+</footer>
 </body>
 </html>
