@@ -293,6 +293,11 @@
   @keyframes floaty { 50% { transform: translateY(-6px); } }
 
   /* 상담센터: 실제 사이트 캡처 */
+  .v-desk { display: grid; place-items: center end; padding-right: 5%; background: linear-gradient(160deg, #6f6cf5 0%, #4fb9c9 100%); }
+  .visual.v-desk img { position: static; inset: auto; width: 54%; height: auto; border-radius: 18px; }
+  .v-desk .modes { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
+  .v-desk .modes span { padding: 5px 10px; border-radius: 8px; background: rgba(7,8,12,.55); backdrop-filter: blur(6px);
+    font: 600 11px "JetBrains Mono", monospace; color: #eceef4; }
   .v-site { background: radial-gradient(circle at 80% 20%, rgba(196,181,253,.25), transparent 55%), #0a0c13; padding: 16px; }
   .browser { height: 100%; border-radius: 12px; overflow: hidden; border: 1px solid var(--line2); background: #111; display: flex; flex-direction: column; box-shadow: 0 20px 40px -10px rgba(0,0,0,.7); }
   .browser .chrome { height: 28px; flex: none; background: #1b1d26; display: flex; align-items: center; gap: 5px; padding: 0 10px; }
@@ -306,7 +311,10 @@
     border-radius: 14px; border: 1px solid rgba(139,157,255,.35); background: rgba(139,157,255,.08); text-decoration: none; color: inherit;
     transition: .2s; max-width: 100%; }
   .app-teaser:hover { border-color: #8b9dff; transform: translateY(-2px); box-shadow: 0 18px 40px -22px #8b9dff; }
-  .app-teaser img { width: 38px; height: 38px; flex: none; }
+  .app-teaser .stack { display: flex; flex-direction: row; flex: none; }
+  .app-teaser .stack img, .app-teaser .stack i { width: 34px; height: 34px; border-radius: 9px; }
+  .app-teaser .stack i { display: grid; place-items: center; margin-left: -10px; background: #6ee7c8; color: #062019;
+    font-style: normal; font-size: 13px; border: 2px solid #07080c; }
   .app-teaser span { display: flex; flex-direction: column; min-width: 0; }
   .app-teaser b { font-size: 14px; }
   .app-teaser small { font-size: 12px; color: #8b90a0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -328,7 +336,7 @@
 <nav>
   <div class="wrap">
     <a class="logo" href="#">tmdghks<b>.dev</b></a>
-    <div class="nav-links"><a href="/deskmode/">DeskMode</a><a href="#work">Work</a><a href="#contact">Contact</a><a href="https://github.com/tmdghks-dev">GitHub ↗</a></div>
+    <div class="nav-links"><a href="/apps/">Apps</a><a href="#work">Work</a><a href="#contact">Contact</a><a href="https://github.com/tmdghks-dev">GitHub ↗</a></div>
     <span class="status"><i class="dot"></i>Open to work</span>
   </div>
 </nav>
@@ -343,10 +351,10 @@
         <a class="btn primary" data-swarm="drop" href="#work">프로젝트 보기 →</a>
         <a class="btn" data-swarm="drop" href="https://github.com/tmdghks-dev">GitHub ↗</a>
       </div>
-      <a class="app-teaser" data-swarm="drop" href="/deskmode/">
-        <img src="/deskmode/assets/icon.png" alt="">
-        <span><b>DeskMode 베타 공개</b><small>모니터를 꽂고 빼도 창은 제자리로 · 맥 앱 무료 체험</small></span>
-        <em>써보기 →</em>
+      <a class="app-teaser" data-swarm="drop" href="/apps/">
+        <span class="stack"><img src="/deskmode/assets/icon.png" alt=""><i>▶</i></span>
+        <span><b>내가 만든 앱 받기</b><small>DeskMode (맥) · 치지직 (윈도우·맥·안드로이드)</small></span>
+        <em>모두 보기 →</em>
       </a>
     </div>
 
@@ -437,7 +445,14 @@ const PROJECTS = [
     tags: ["Java", "Android Automotive", "Flutter"], git: "https://github.com/tmdghks-dev/petcare-drive",
     visual: `<div class="visual v-pet"><img class="car" src="assets/petcare-car.jpg" alt="펫케어 차량 앱 화면: 달이를 달래는 중" loading="lazy">
       <img class="phone-img" src="assets/petcare-phone.jpg" alt="펫케어 보호자 앱 홈 화면" loading="lazy"></div>` },
-  { id: "chzzk", c: "var(--a2)", idx: "02 / LIVE STREAMING", name: "치지직 클론",
+  { id: "deskmode", c: "var(--a1)", idx: "02 / MAC APP", name: "DeskMode",
+    short: "모니터를 꽂고 빼면 창 배치가 알아서 바뀌는 맥 앱.",
+    desc: "집에서는 듀얼 모니터, 카페에서는 맥북 하나. 연결된 화면 구성을 알아보고 그 구성에서 쓰던 창 배치로 자동 전환하는 macOS 메뉴 막대 앱입니다. 마우스 버튼이나 단축키로 여는 원형 메뉴, 창을 부드럽게 옮기는 애니메이션까지 직접 만들어 베타로 배포하고 있습니다.",
+    points: ["화면 구성(모니터 조합)마다 창 배치 · Dock 숨김 상태 자동 기억과 복원", "Accessibility API로 다른 앱 창 이동 · 모니터 재연결 중 흔들림 대응", "원형 메뉴 칸 직접 구성 · 창 슬라이드 애니메이션 · 오프라인 Ed25519 라이선스"],
+    tags: ["Swift", "SwiftUI", "AppKit", "Accessibility API"], dl: "/deskmode/", git: "https://github.com/tmdghks-dev/deskmode",
+    visual: `<div class="visual v-desk"><img src="deskmode/assets/ring.png" alt="DeskMode 원형 메뉴" loading="lazy">
+      <div class="modes"><span>🏠 집 · 맥북 + 모니터</span><span>☕ 외출 · 맥북만</span></div></div>` },
+  { id: "chzzk", c: "var(--a2)", idx: "03 / LIVE STREAMING", name: "치지직 클론",
     short: "휴대폰으로 방송을 켜면 채팅·후원이 붙는 라이브 스트리밍 서비스.",
     desc: "휴대폰 카메라로 방송을 켜면 실시간 채팅과 후원 결제가 붙는 스트리밍 서비스. 부하가 몰리면 서버가 2대에서 5대로 스스로 늘어나도록 오토스케일링까지 구성하고 검증했습니다.",
     points: ["WebSocket 실시간 채팅 · 방송 송출", "Toss Payments 후원 결제", "Kubernetes HPA 2→5 Pod 자동 확장 · k6 부하 테스트"],
@@ -446,7 +461,7 @@ const PROJECTS = [
     visual: `<div class="visual screen"><div class="live"><b>● LIVE</b><span>👁 1,204</span></div>
       <div class="pods">PODS<div class="bars"><i></i><i></i><i></i><i></i><i></i></div></div>
       <div class="chat"><div><em>달이</em>방송 화질 미쳤다</div><div><em>dev_kim</em>💰 5,000원 후원!</div><div><em>spring</em>지연 거의 없네요</div><div><em>jpa</em>ㅋㅋㅋㅋ 레전드</div></div></div>` },
-  { id: "interview", c: "var(--a1)", idx: "03 / WEB APP", name: "Interview Lab",
+  { id: "interview", c: "var(--a1)", idx: "04 / WEB APP", name: "Interview Lab",
     short: "주니어 백엔드 면접 152문항을 가입 없이 바로 연습.",
     desc: "주니어 백엔드 면접 대비 152문항. Java·Spring·JPA·SQL·CS를 가입 없이 브라우저에서 바로 연습할 수 있게 만들었습니다.",
     points: ["카테고리별 152문항", "가입 없이 브라우저에서 바로 사용", "답변을 가렸다가 펼쳐 보는 학습 흐름"],
@@ -455,14 +470,14 @@ const PROJECTS = [
       <div class="q">Q. N+1 문제는 왜 생기나요?</div>
       <div class="a">연관 엔티티를 지연 로딩하면 목록 1번 조회 뒤 각 항목마다 추가 쿼리가 N번 나갑니다. fetch join이나 @EntityGraph로 해결합니다.</div>
       <div class="bar2"><i></i></div></div></div>` },
-  { id: "shorturl", c: "var(--a4)", idx: "04 / FULLSTACK RUST", name: "숫자형 단축 URL",
+  { id: "shorturl", c: "var(--a4)", idx: "05 / FULLSTACK RUST", name: "숫자형 단축 URL",
     short: "Rust 풀스택 Dioxus로 만든 단축 URL 서비스.",
     desc: "Rust 풀스택 프레임워크 Dioxus로 만든 숫자형 단축 URL 서비스. Railway에 배포하고 Cloudflare로 도메인을 연결했습니다.",
     points: ["긴 주소를 짧은 숫자 주소로 변환", "Dioxus 풀스택 (프론트·백 모두 Rust)", "Railway 배포 + Cloudflare 연결"],
     tags: ["Rust", "Dioxus", "Railway", "Cloudflare"], git: "https://github.com/tmdghks-dev/dioxus-shorturl",
     visual: `<div class="visual v-url"><div class="in">https://www.example.com/blog/2026/11/how-to-build-a-short-url-service</div>
       <div class="arrow">↓</div><div class="outp"><span>tmdg.dev/1024</span><small>클릭 382</small></div></div>` },
-  { id: "tello", c: "var(--a3)", idx: "05 / COMPUTER VISION", award: "🥈 AI 드론경진대회 은상", name: "Tello 정밀 착륙",
+  { id: "tello", c: "var(--a3)", idx: "06 / COMPUTER VISION", award: "🥈 AI 드론경진대회 은상", name: "Tello 정밀 착륙",
     short: "OpenCV로 파란 원 마커를 인식해 원을 그리며 날고 정밀 착륙.",
     desc: "드론 카메라 영상에서 OpenCV로 파란 원 마커를 찾아 중심과의 오차를 계산하고, 오차 크기에 따라 속도를 조절하며 스스로 원을 그리며 비행한 뒤 마커 중심에 정밀 착륙합니다. AI 드론경진대회에서 은상을 받았습니다.",
     points: ["OpenCV 색상 마스크로 파란 원 실시간 검출", "중심 오차 기반 비례 제어로 위치 보정", "안정 판정 후 자동 착륙"],
@@ -502,7 +517,7 @@ const PROJECTS = [
         </g>
       </g>
     </svg></div>` },
-  { id: "ruach", c: "var(--a6)", idx: "06 / CLIENT WORK", name: "루아흐 상담센터",
+  { id: "ruach", c: "var(--a6)", idx: "07 / CLIENT WORK", name: "루아흐 상담센터",
     short: "실제 운영 중인 정신분석심리상담센터 홈페이지.",
     desc: "정신분석심리상담센터 루아흐의 공식 홈페이지입니다. 센터 소개부터 상담 예약, 공지와 칼럼, 오시는 길까지 Firebase 서버리스로 만들어 실제로 운영하고 있습니다.",
     points: ["실제 고객과 요구사항을 정리한 외주 프로젝트", "상담 예약 · 공지 · 칼럼 · 관리자 페이지", "Firebase Hosting + Firestore 서버리스 운영"],

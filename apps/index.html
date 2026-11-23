@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>앱 다운로드 · tmdghks.dev</title>
+<meta name="description" content="tmdghks.dev에서 만든 앱을 한곳에서 받으세요: DeskMode, 치지직 클론.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --bg: #07080c; --surface: #11131b; --line: #1f2230;
+    --text: #eceef4; --muted: #8b90a0; --dim: #4e5466;
+    --a1: #8b9dff; --a2: #6ee7c8; --a3: #ffc56b; --a4: #ff8fab;
+    --display: "Space Grotesk", Pretendard, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Pretendard, -apple-system, system-ui, sans-serif;
+    background-image: radial-gradient(900px 500px at 80% -10%, rgba(139,157,255,.14), transparent 60%),
+                      radial-gradient(700px 400px at -10% 10%, rgba(110,231,200,.10), transparent 60%); }
+  a { color: inherit; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 28px 20px 80px; }
+  nav { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 14px; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--text); }
+  .eyebrow { margin-top: 72px; font-family: var(--mono); color: var(--a1); font-size: 13px; letter-spacing: .1em; }
+  h1 { font-family: var(--display); font-size: clamp(34px, 6vw, 54px); line-height: 1.08; margin: 12px 0 14px; letter-spacing: -.03em; }
+  h1 span { background: linear-gradient(90deg, var(--a1), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { color: var(--muted); font-size: 17px; line-height: 1.7; max-width: 560px; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 36px; }
+  .filters button { font: 600 13px var(--mono); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line);
+    background: transparent; color: var(--muted); cursor: pointer; }
+  .filters button.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  .apps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-top: 18px; }
+  .app { display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: 18px; background: var(--surface);
+    border: 1px solid var(--line); text-decoration: none; transition: .2s; }
+  .app:hover { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 24px 50px -30px var(--c); }
+  .app .top { display: flex; align-items: center; gap: 14px; }
+  .app .icon { width: 52px; height: 52px; border-radius: 14px; flex: none; display: grid; place-items: center; font-size: 24px; background: var(--c); color: #07080c; }
+  .app img.icon { background: none; }
+  .app b { font-family: var(--display); font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .app .badge { font: 800 10px var(--mono); padding: 2px 7px; border-radius: 6px; background: var(--a3); color: #1a1205; }
+  .app small { color: var(--muted); font-size: 13px; }
+  .app p { margin: 0; color: var(--muted); line-height: 1.65; font-size: 14.5px; }
+  .platforms { display: flex; flex-wrap: wrap; gap: 6px; }
+  .platforms span { font: 12px var(--mono); padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
+  .platforms span.mine { border-color: var(--c); color: var(--text); }
+  .app .go { margin-top: auto; color: var(--c); font-weight: 800; font-size: 14px; }
+  .empty { color: var(--muted); padding: 30px 0; }
+  footer { margin-top: 60px; color: var(--dim); font-family: var(--mono); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="/">← tmdghks.dev</a><a href="https://github.com/tmdghks-dev">GitHub ↗</a></nav>
+
+  <div class="eyebrow">APPS · DOWNLOAD</div>
+  <h1>직접 만든 앱,<br><span>골라서 받아 가세요.</span></h1>
+  <p class="lead">모두 무료로 받을 수 있어요. 앱을 누르면 설명과 설치 방법이 있는 페이지로 가요.</p>
+
+  <div class="filters" id="filters"></div>
+  <div class="apps" id="apps"></div>
+
+  <footer>© 2026 tmdghks.dev · 새 앱이 나오면 여기에 추가돼요</footer>
+</div>
+<script>
+// 새 앱을 올리면 여기에 한 줄 추가하면 돼요.
+const APPS = [
+  { name: "DeskMode", badge: "BETA", c: "var(--a1)", icon: "/deskmode/assets/icon.png", href: "/deskmode/",
+    tagline: "모니터를 꽂고 빼도, 창은 제자리로",
+    desc: "화면 구성이 바뀌면 창 배치를 알아서 바꿔 주는 맥 메뉴 막대 앱. 원형 메뉴, 창 부드럽게 옮기기.",
+    platforms: ["mac"] },
+  { name: "치지직 클론", c: "var(--a2)", emoji: "▶", href: "/download/",
+    tagline: "휴대폰으로 켜는 라이브 스트리밍",
+    desc: "휴대폰 카메라로 방송을 켜고, 채팅과 후원이 붙는 라이브를 PC와 휴대폰에서 시청해요.",
+    platforms: ["win", "mac", "android"] },
+];
+const NAMES = { mac: "macOS", win: "Windows", android: "Android", ios: "iPhone", web: "Web" };
+
+const ua = navigator.userAgent;
+const mine = /Android/i.test(ua) ? "android" : /iPhone|iPad/i.test(ua) ? "ios" : /Mac/i.test(ua) ? "mac" : /Win/i.test(ua) ? "win" : "";
+const all = [...new Set(APPS.flatMap((a) => a.platforms))];
+let filter = "all";
+
+function render() {
+  document.getElementById("filters").innerHTML = ["all", ...all].map((p) =>
+    `<button class="${p === filter ? "on" : ""}" data-p="${p}">${p === "all" ? `전체 ${APPS.length}` : NAMES[p]}</button>`).join("");
+  const list = APPS.filter((a) => filter === "all" || a.platforms.includes(filter));
+  document.getElementById("apps").innerHTML = list.length ? list.map((a) => `
+    <a class="app" href="${a.href}" style="--c: ${a.c}">
+      <div class="top">
+        ${a.icon ? `<img class="icon" src="${a.icon}" alt="">` : `<span class="icon">${a.emoji}</span>`}
+        <div><b>${a.name}${a.badge ? `<span class="badge">${a.badge}</span>` : ""}</b><small>${a.tagline}</small></div>
+      </div>
+      <p>${a.desc}</p>
+      <div class="platforms">${a.platforms.map((p) => `<span class="${p === mine ? "mine" : ""}">${NAMES[p]}</span>`).join("")}</div>
+      <span class="go">받으러 가기 →</span>
+    </a>`).join("") : `<p class="empty">이 기기용 앱은 아직 없어요.</p>`;
+}
+document.getElementById("filters").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (b) { filter = b.dataset.p; render(); }
+});
+render();
+</script>
+</body>
+</html>
