@@ -503,6 +503,34 @@
   .ld-bar { width: min(260px, 60vw); height: 2px; background: rgba(244,239,232,.12); overflow: hidden; border-radius: 2px; }
   .ld-bar i { display: block; height: 100%; background: var(--hot); transform-origin: 0 50%; transform: scaleX(0); }
   #ldPct { font: 400 12px var(--mono); letter-spacing: .1em; color: rgba(244,239,232,.6); font-weight: 400; }
+
+  /* 큰 글자 띠 */
+  .band { overflow: hidden; padding: 70px 0 150px; pointer-events: none; }
+  .band-row { white-space: nowrap; font: 500 clamp(64px, 11vw, 170px)/1 var(--sans); letter-spacing: -.05em; text-transform: uppercase; color: var(--ink); }
+  .band-row span { display: inline-block; will-change: transform; }
+  .band-row i { font-style: normal; color: var(--hot); margin: 0 .25em; font-size: .7em; vertical-align: .18em; }
+  .band-row.out { color: transparent; -webkit-text-stroke: 1.5px var(--ink); opacity: .35; margin-top: 6px; }
+  .band-row.out i { -webkit-text-stroke: 0; color: var(--hot); }
+
+  /* 카드 진행 표시: 덱 오른쪽 01–08 */
+  .deck-nav { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; gap: 14px; }
+  .deck-nav button { display: flex; align-items: center; gap: 8px; padding: 6px 0; border: 0; background: none; cursor: pointer;
+    font: 400 11.5px var(--mono); letter-spacing: .04em; color: var(--muted); transition: color .2s; }
+  .deck-nav button i { width: 16px; height: 2px; border-radius: 2px; background: currentColor; opacity: .35; transition: width .3s, opacity .3s, background .3s; }
+  .deck-nav button em { font-style: normal; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width .4s, opacity .3s; }
+  .deck-nav button.on em { max-width: 200px; opacity: 1; }
+  .deck-nav button.on { color: var(--ink); } .deck-nav button.on i { width: 30px; opacity: 1; background: var(--hot); }
+  .deck-nav button:hover { color: var(--ink); }
+  @media (max-width: 760px) { .deck-nav { gap: 6px; bottom: 14px; } .deck-nav button { font-size: 10px; } .deck-nav button em { display: none; } .deck-nav button i { width: 10px; } .deck-nav button.on i { width: 18px; } }
+
+  /* 카드 빛 번짐: 렌즈 플레어 + 빛줄기 */
+  .card .flare { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen; opacity: .85;
+    background: radial-gradient(14% 22% at 82% 18%, rgba(255,240,220,.55), transparent 70%), radial-gradient(4% 6% at 74% 26%, rgba(255,220,190,.6), transparent 70%),
+      radial-gradient(2.5% 4% at 62% 40%, rgba(255,200,160,.45), transparent 70%), linear-gradient(118deg, transparent 30%, rgba(255,235,210,.12) 42%, transparent 52%); }
+  .card .flare::after { content: ""; position: absolute; inset: -20% -40%; background: linear-gradient(100deg, transparent 40%, rgba(255,255,255,.10) 48%, transparent 56%);
+    animation: leak 9s ease-in-out infinite; }
+  @keyframes leak { 0%, 100% { transform: translateX(-30%); } 50% { transform: translateX(30%); } }
+  @media (prefers-reduced-motion: reduce) { .card .flare::after { animation: none; } }
 </style>
 </head>
 <body data-i18n-page>
@@ -674,6 +702,11 @@
   </div>
   <div class="deck" id="deck"><div class="deck-stage"><div class="deck-cards" id="cards"></div></div></div>
 </section>
+
+<div class="band" aria-hidden="true">
+  <div class="band-row" data-dir="1"><span>Built<i>*</i>Shipped<i>*</i>Kept alive<i>*</i>Built<i>*</i>Shipped<i>*</i>Kept alive<i>*</i>Built<i>*</i>Shipped<i>*</i>Kept alive<i>*</i></span></div>
+  <div class="band-row out" data-dir="-1"><span>Java<i>*</i>Spring<i>*</i>Kubernetes<i>*</i>Swift<i>*</i>Rust<i>*</i>Java<i>*</i>Spring<i>*</i>Kubernetes<i>*</i>Swift<i>*</i>Rust<i>*</i>Java<i>*</i>Spring<i>*</i></span></div>
+</div>
 
 <section class="about" id="about">
   <svg class="curtain top" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path id="curtTop" d="M0 140 V140 Q50 140 100 140 V140 Z"/></svg>
@@ -1020,7 +1053,7 @@ wrapCards.innerHTML = PROJECTS.map((p, i) => `
     <button class="pill light see" data-id="${p.id}">See project</button>
     <span class="num">${String(i + 1).padStart(2, "0")} / ${String(PROJECTS.length).padStart(2, "0")}</span>
     <div class="mat m-${EXTRA[p.id].mat}"></div>
-    <div class="mood"></div><div class="mood b2"></div>
+    <div class="mood"></div><div class="mood b2"></div><div class="flare"></div>
     <div class="bigword" aria-hidden="true">${EXTRA[p.id].word}</div>
     <div class="stage"><div class="device">${p.visual}</div></div>
     ${EXTRA[p.id].chips.map(([ic, t], k) => `<div class="float ${k ? "b" : "a"}"><i>${I(ic)}</i>${t}</div>`).join("")}
@@ -1033,6 +1066,12 @@ wrapCards.innerHTML = PROJECTS.map((p, i) => `
 
 const cards = [...wrapCards.children];
 const stage = deck.querySelector(".deck-stage");
+const dnav = Object.assign(document.createElement("div"), { className: "deck-nav" });   // nav 태그는 상단 메뉴 스타일을 물려받아서 div
+dnav.setAttribute("role", "navigation"); dnav.setAttribute("aria-label", "프로젝트 바로 가기");
+dnav.innerHTML = PROJECTS.map((p, i) => `<button type="button" data-i="${i}" aria-label="${p.name}">${String(i + 1).padStart(2, "0")}<i></i><em>${p.name}</em></button>`).join("");
+stage.append(dnav);
+dnav.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) scrollTo({ top: deck.offsetTop + +b.dataset.i * STEP() + 2, behavior: "smooth" }); });
+const dots = [...dnav.children];
 const N = cards.length;
 const STEP = () => innerHeight * 0.8;                  // 카드 한 장 넘기는 스크롤 길이
 const size = () => (deck.style.height = `${(N - 1) * STEP() + innerHeight}px`);
@@ -1042,6 +1081,7 @@ function deckFx() {
   const p = Math.min(N - 1, Math.max(0, -deck.getBoundingClientRect().top / STEP()));
   const drop = wrapCards.offsetHeight + innerHeight * 0.2; // 빠지는 카드가 내려가는 거리
   stage.style.setProperty("--dg", EXTRA[PROJECTS[Math.min(N - 1, Math.round(p))].id].glow);   // 앞 카드 색을 배경에 번지게
+  dots.forEach((d, i) => d.classList.toggle("on", i === Math.round(p)));
   cards.forEach((el, i) => {
     const d = i - p;                                     // 0 = 맨 앞, 1 = 바로 뒤 …
     el.classList.toggle("back", d > 0.35);
@@ -1659,7 +1699,9 @@ try {
   const rise = () => { const r = wm.parentElement.getBoundingClientRect(); wm.style.setProperty("--rise", still ? 0 : clamp((r.bottom - innerHeight) / (r.height || 1), 0, 1).toFixed(3)); };
 
   let ticking = false;
-  const onScroll = () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; curtain(); rise(); }); };
+  const rows = [...document.querySelectorAll(".band-row")];
+  const band = () => { if (still) return; rows.forEach((r) => { const b = r.getBoundingClientRect(); if (b.bottom < -200 || b.top > innerHeight + 200) return; const k = (innerHeight - b.top) * .7 * +r.dataset.dir; r.firstElementChild.style.transform = `translateX(calc(-22% + ${k}px))`; }); };
+  const onScroll = () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; curtain(); rise(); band(); }); };
   addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onScroll); onScroll();
 })();
 </script>

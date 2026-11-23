@@ -14,6 +14,9 @@
   .pt-leave .pt { transform: translateY(0); }
   .pt-arrive .pt { transform: translateY(0); transition: none; }
   .pt-arrive.pt-out .pt { transform: translateY(-101%); transition: transform .6s cubic-bezier(.7,0,.2,1); }
+  .sbar { position: fixed; left: 0; top: 0; z-index: 120; width: 100%; height: 2px; background: #ff4a1c; transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; }
+  .rv { opacity: 0; transform: translateY(26px); }
+  .rv.in { opacity: 1; transform: none; transition: opacity .8s cubic-bezier(.2,.8,.2,1) var(--d, 0ms), transform .8s cubic-bezier(.2,.8,.2,1) var(--d, 0ms); }
   .nav-right { display: flex; align-items: center; gap: 8px; }
   .toggles { display: flex; gap: 6px; }
   .tg { height: 33px; min-width: 33px; padding: 0 9px; border: 0; border-radius: 7px; display: inline-grid; place-items: center; grid-auto-flow: column; gap: 6px;
@@ -46,6 +49,9 @@
   const q = new URLSearchParams(location.search).get("lang");
   if (q === "en" || q === "ko") store.set("lang", q);
   root.dataset.lang = store.get("lang") === "en" ? "en" : "ko";
+  // 하위 페이지 영어: 사전을 본문보다 먼저 받아 둔다 (메인 페이지는 자체 사전이 있다)
+  const isMain = location.pathname === "/" || location.pathname === "/index.html";
+  if (root.dataset.lang === "en" && !isMain) { root.lang = "en"; document.write('<script src="/i18n-sub.js"><\/script>'); }
 
   // ── 페이지 전환: 들어올 때 주황 막이 위로 걷힌다 ──
   let came = false; try { came = sessionStorage.getItem("pt") === "1"; sessionStorage.removeItem("pt"); } catch {}
@@ -60,7 +66,7 @@
     pt.setAttribute("aria-hidden", "true");
     document.body.append(pt);
     if (root.classList.contains("pt-arrive")) requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("pt-out")));
-    setTimeout(() => root.classList.remove("pt-arrive", "pt-out"), 900);
+    setTimeout(() => { pt.style.transition = "none"; root.classList.remove("pt-arrive", "pt-out"); void pt.offsetWidth; pt.style.transition = ""; }, 900);
 
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[href]");
@@ -76,8 +82,45 @@
     });
     addEventListener("pageshow", (e) => { if (e.persisted) root.classList.remove("pt-leave"); });   // 뒤로 가기로 돌아왔을 때
 
+    // 하위 페이지 번역
+    const SUB = window.SUB_EN;
+    if (SUB && root.dataset.lang === "en") {
+      const norm = (t) => t.replace(/\s+/g, " ").trim();
+      const tr = (rootEl) => {
+        rootEl.querySelectorAll?.("p, li").forEach((el) => {
+          const t = norm(el.textContent);
+          const hit = SUB.EL.find(([k, v]) => v && t.startsWith(k));
+          if (hit) el.innerHTML = hit[1];
+        });
+        const w = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
+        while (w.nextNode()) { const n = w.currentNode, t = n.nodeValue.trim(); if (t && /[가-힣]/.test(t) && SUB.TX[t] != null) n.nodeValue = n.nodeValue.replace(t, SUB.TX[t]); }
+        rootEl.querySelectorAll?.("[alt], [title], [aria-label]").forEach((el) => ["alt", "title", "aria-label"].forEach((a) => { const v = el.getAttribute(a); if (v && SUB.TX[v]) el.setAttribute(a, SUB.TX[v]); }));
+      };
+      tr(document.body);
+      if (SUB.TITLE[document.title]) document.title = SUB.TITLE[document.title];
+      new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => n.nodeType === 1 && tr(n)))).observe(document.body, { childList: true, subtree: true });
+    }
+
+    // 스크롤 진행 바: 맨 위 얇은 주황 선
+    const bar = Object.assign(document.createElement("div"), { className: "sbar" });
+    document.body.append(bar);
+    const prog = () => { const h = document.documentElement.scrollHeight - innerHeight; bar.style.transform = `scaleX(${h > 0 ? Math.min(1, scrollY / h) : 0})`; };
+    addEventListener("scroll", prog, { passive: true }); addEventListener("resize", prog); prog();
+
+    // 하위 페이지: 제목·문단·카드가 아래에서 차례로 올라온다 (메인은 커서 인트로가 대신한다)
+    if (!document.querySelector("[data-i18n-page]") && !still && "IntersectionObserver" in window) {
+      const els = document.querySelectorAll(".top .lbl, .top h1, .top .lead, .top .cta, .top .modes, .sec h2, .sec .sub, .sec .lbl, .feat, .steps li, .faq details, .os, .app, .stage, .end > *, .doc h2, .doc p");
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; const el = e.target; el.classList.add("in"); io.unobserve(el); setTimeout(() => el.classList.remove("rv", "in"), 1300); }), { rootMargin: "0px 0px -6% 0px" });   // 끝나면 원래 hover 효과로
+      els.forEach((el) => {
+        const sib = [...el.parentElement.children].filter((c) => c.classList.contains("rv")).length;
+        el.classList.add("rv"); el.style.setProperty("--d", `${Math.min(sib, 6) * 70}ms`); io.observe(el);
+      });
+      // 앱 카드처럼 나중에 그려지는 것도
+      new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n.nodeType === 1 && n.matches(".app, .os")) { n.classList.add("rv"); io.observe(n); } }))).observe(document.body, { childList: true, subtree: true });
+    }
+
     // 버튼 묶음: 모든 내비의 Contact 버튼 앞에 [KO/EN] [테마]
-    const i18n = !!document.querySelector("[data-i18n-page]");
+    const i18n = true;   // 모든 페이지에 KO/EN
     document.querySelectorAll(".nav-cta").forEach((cta) => {
       const box = Object.assign(document.createElement("div"), { className: "toggles" });
       if (i18n) {
@@ -95,7 +138,8 @@
         box.append(lang);
       }
       const th = Object.assign(document.createElement("button"), { className: "tg theme", type: "button" });
-      const paint = () => { th.innerHTML = root.dataset.theme === "dark" ? SUN : MOON; th.setAttribute("aria-label", root.dataset.theme === "dark" ? "밝은 화면으로" : "어두운 화면으로"); };
+      const en = root.dataset.lang === "en";
+      const paint = () => { th.innerHTML = root.dataset.theme === "dark" ? SUN : MOON; th.setAttribute("aria-label", root.dataset.theme === "dark" ? (en ? "Light mode" : "밝은 화면으로") : (en ? "Dark mode" : "어두운 화면으로")); };
       paint();
       th.onclick = () => {
         const dark = root.dataset.theme !== "dark";
