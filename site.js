@@ -12,8 +12,10 @@
     transform: translateY(101%); transition: transform .45s cubic-bezier(.7,0,.2,1); }
   .pt span { font: 400 clamp(40px, 8vw, 90px) "Fragment Mono", ui-monospace, monospace; letter-spacing: -.04em; }
   .pt-leave .pt { transform: translateY(0); }
-  .pt-arrive .pt { transform: translateY(0); transition: none; }
-  .pt-arrive.pt-out .pt { transform: translateY(-101%); transition: transform .6s cubic-bezier(.7,0,.2,1); }
+  /* 도착: 페이지가 처음 그려질 때부터 덮고 있다가 위로 빠진다 (본문보다 먼저 있는 html 가상 요소라 늦게 나타나지 않는다) */
+  html.pt-arrive::after { content: ">_"; position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: #ff4a1c; color: #fff;
+    font: 400 clamp(40px, 8vw, 90px) "Fragment Mono", ui-monospace, monospace; letter-spacing: -.04em; pointer-events: none; transform: translateY(0); }
+  html.pt-arrive.pt-out::after { transform: translateY(-101%); transition: transform .6s cubic-bezier(.7,0,.2,1); }
   .sbar { position: fixed; left: 0; top: 0; z-index: 120; width: 100%; height: 2px; background: #ff4a1c; transform-origin: 0 50%; transform: scaleX(0); pointer-events: none; }
   .rv { opacity: 0; transform: translateY(26px); }
   .rv.in { opacity: 1; transform: none; transition: opacity .8s cubic-bezier(.2,.8,.2,1) var(--d, 0ms), transform .8s cubic-bezier(.2,.8,.2,1) var(--d, 0ms); }
@@ -66,8 +68,8 @@
     pt.setAttribute("aria-hidden", "true");
     document.body.append(pt);
     // 막은 항상 위로만 움직인다: 덮을 땐 아래에서 위로, 걷힐 땐 위로 빠지고, 제자리(아래)로는 애니메이션 없이 돌아간다
-    const reset = () => { pt.style.transition = "none"; root.classList.remove("pt-arrive", "pt-out", "pt-leave"); void pt.offsetWidth; pt.style.transition = ""; };
-    const liftOff = () => { setTimeout(() => root.classList.add("pt-out"), 40); setTimeout(reset, 950); };
+    const reset = () => { pt.style.transition = "none"; root.classList.remove("pt-arrive", "pt-out", "pt-leave"); void pt.offsetWidth; pt.style.transition = ""; };   // 위로 다 빠진 뒤라 지워도 보이지 않는다
+    const liftOff = () => { setTimeout(() => root.classList.add("pt-out"), 60); setTimeout(reset, 900); };
     if (root.classList.contains("pt-arrive")) liftOff();
 
     document.addEventListener("click", (e) => {
@@ -85,7 +87,8 @@
     // 뒤로 가기로 돌아왔을 때: 덮인 채 저장된 화면이면 아래로 내려가지 말고 위로 걷히게
     addEventListener("pageshow", (e) => {
       if (!e.persisted || !root.classList.contains("pt-leave")) return;
-      pt.style.transition = "none"; root.classList.remove("pt-leave"); root.classList.add("pt-arrive"); void pt.offsetWidth; pt.style.transition = "";
+      root.classList.add("pt-arrive");                     // 가상 요소 막이 먼저 덮고
+      pt.style.transition = "none"; root.classList.remove("pt-leave"); void pt.offsetWidth; pt.style.transition = "";   // 떠날 때 막은 소리 없이 치운다
       liftOff();
     });
 
