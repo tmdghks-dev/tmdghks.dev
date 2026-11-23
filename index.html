@@ -623,20 +623,20 @@ document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) =
   const cv = document.getElementById("globe"), g = cv.getContext("2d");
   const W = cv.width, still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const load = (src) => new Promise((ok, no) => document.head.append(Object.assign(document.createElement("script"), { src, onload: ok, onerror: no })));
+  const LAND = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAgAMAAAAAAAAAAAAAAAAAAAAAeAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAQAAAAAAAAA8AAAAAAAAAAAAAAEAAAAAAAAA+AAAAAAAAAAAAAAABCAAAAAAAgA8AAAAAAAAAAAAAAAAgAAAAAAAAHwAAAAAAAAAAAAAAAAACAAAAAADgHwAAAAAAAAAAAAAAHgAAAAAAAACAPwAAAAAAAAAAAAAA8AEAAAAAAAAA8B8AAAAAAwAAAACAAfwBAAAAAAAAAOB/AAAAAHwAAAAAAHz4DwAAAAAAAAAA/g8AAADAHwAAAAAA//8HAAAAAAAAAAD/DwAAAMAfAAAAAAD//w8AAAAAAAAAAPh/AAAAAP4DAAAAAPD//wAAAAAAAAAAAP4fAAAAgP8AAAAAAPj//wAAAAAAAAAAAP4/AAAAgP+DAQAAAPD//wEAAAAAAAAAAPD/DwAAAPw/HAAAAAD//w8AAAAAAAAAAAD+/wEAAID/BwMAAAAA//8DBAAAAAAAAAAA/v8DAACA/w8HAAAAAPj/AQAAAAAAAAAAAP7/DwAAAP9/HAAAAADA/w4AAAAAAAAAAAD4/38AAADw/w8DAAAAAPDHAAAAAAAAAAAAAP//HwAAAPz/hwAAAAAA4BEAAAAAAAAAAADA//8PAAAA/P8BAAAAAADAAQAAAAAAAAAAAOD//z8AAAD8/wMAAAAAAAAAAgAAAAAAAAAAwP///wAAAPD/BwAAAAAAJcAGAAAAAAAAAAAA////AwAAwP8/AAAAAOAAAA8AAAAAAAAAAAD8//8fAAAA/v8BAAAAgAAAeBQAAAAAAAAAAMD//z8AAAD4/x8AAAAABpn4QwAAAAAAAAAAAPz/fwAAAID//wMAAABgvIEEAAAAAAAAAAAAwP//AQAAAPj/PwAAAADDAwEAAAAAAAAAAAAA+P8PAAAAgP//DwAAAHh8EAAAAAAAAAAAAAAA/38AAAAA+P//AQAAwAIDAAAAAAAAAAAAAADw/wMAAJDw//8fAAAAMjAAAAAAAAAAAAAAAMD/AwAA4P////8BAARAABAAAAAAAAAAAAAAQP4PAACA/////wcAKIABwAAAAAAAAAAAAADAsA8AAID/////HwAwACAAAAAAAAAAAAAAAMBAAAAAgP////8hADAAekABAAAAAAAAAAAA8AAAAADA/////wMAHAA/EAAAAAAAAAAAAAAfAAAAAPj////vA4AD8AcCAAAAAAAAAAAAfgAAAAAA////f34AfEAfIAAAAAAAAAAAAL6DPgAAAPz////8A/CDP0AAAAAAAAAAAAAeBgMAAAD8//9//gf4xz8AAAAAAAAAAACAByQAAACA////3/+B//k/AAAAAAAAAAAA+AAAAAAA8P////4P/v//LwAAAAAAAAAA8AMAAAAAwP////3D/f//PwAAAAAAAAAA+gMEAAAAwP//f3/6////DwAAAAAAAACgf0AAAAAA+P////n///9/AAAAAAAAAED//wAAAADw//v//////z8AAAAAAAAA8P8/AAAAAPw/A///////hwAAAAAAAID//wMAAADgPwD8/////wcDAAAAAADg//8DAAAAwA8A///////YAwAAAAAA/v8/AAAAwEGR//n///8nDAAAAAAA//8/AAAA4AHlf/z//38EAgAAAADw//8HAAAAD2z++////z8EAAAAAOD//w8AAIAPeeD8////DwAAAAAA/v//AAAA4PXD+////38EAAAAAPz//w8AAPD/9fz///8fAAAAAOD//w8AAOD///////8fAAAAAPj//2UAAPj///////8LAAAA4P//vwAA+P///////wMAAAD8//cPAOD9//////8HAQAA/P/7BwAo8v//////MAAI8P/HDwBAkP////8fGAAA/H/wAQCM8f/////AABj8f3AAAOD5/////xKA//8HAwOA9/////97wP//gXEAcP//////A////3EQ8Pv///+/8/8/ykPg/////z/+T3c8AP7///8/fLc1f4AD//+/APA6fAAA/e8AAPPwAwDwDwAAGH4AhAcAgMIfAGEAAKAfAgAAAPVjAAAA8B8AAAA=";
   const SEOUL = [126.98, 37.57];
   // 서울에서 세계 여러 도시로 선이 차례로 뻗어 나간다
   const PLACES = [[139.69, 35.69], [121.47, 31.23], [116.4, 39.9], [103.82, 1.35], [100.5, 13.75], [151.21, -33.87], [77.21, 28.61],
     [55.27, 25.2], [-0.13, 51.51], [4.9, 52.37], [13.4, 52.52], [-122.42, 37.77], [-122.33, 47.61], [-74.0, 40.71], [-79.38, 43.65], [-149.9, 61.22], [174.76, -36.85]];
   async function start() {
     await load("https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js");
-    await load("https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js");
-    const topo = await (await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json")).json();
-    const land = topojson.feature(topo, topo.objects.land);
-    // 육지 위에만 점을 찍는다 (위도마다 간격을 맞춰 고르게)
+    // 육지 점: 미리 계산해 둔 비트맵 (위도 1.7도 줄마다, 경도는 위도에 맞춘 간격). 브라우저에서 매번 계산하면 3초 넘게 멈춰서.
+    const bits = Uint8Array.from(atob(LAND), (c) => c.charCodeAt(0));
     const dots = [];
+    let n = 0;
     for (let lat = -58; lat <= 82; lat += 1.7) {
       const step = 1.7 / Math.max(.2, Math.cos(lat * Math.PI / 180));
-      for (let lon = -180; lon < 180; lon += step) if (d3.geoContains(land, [lon, lat])) dots.push([lon, lat]);
+      for (let lon = -180; lon < 180; lon += step, n++) if (bits[n >> 3] >> (n & 7) & 1) dots.push([lon, lat]);
     }
     const R = W * 0.4;
     const proj = d3.geoOrthographic().scale(R).translate([W / 2, W / 2]).clipAngle(90);
@@ -942,7 +942,7 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
 
   // 작업: state = hidden(지워짐) → queued(대기) → working(그리는 중) → done(완성)
   const tasks = [...document.querySelectorAll("[data-swarm]")].filter((el) => el.getClientRects().length).map((el) => {
-    const t = { el, kind: el.dataset.swarm, state: "done", nodes: [], speed: el.closest(".hero") ? 1 : 0.45 };
+    const t = { el, kind: el.dataset.swarm, state: "done", nodes: [], speed: el.closest(".hero") ? 1 : 0.3 };
     if (t.kind === "type") {
       const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       while (walk.nextNode()) if (walk.currentNode.nodeValue.trim()) t.nodes.push([walk.currentNode, walk.currentNode.nodeValue]);
@@ -978,10 +978,12 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
         queue.splice(queue.indexOf(t), 1); t.state = "hidden";
       } else if (t.state === "done") {
         hide(t); // 화면 밖으로 나가면 지워 두고, 돌아오면 다시 그린다
+      } else if (t.state === "working") {
+        t.abort = true; // 그리는 도중 화면 밖으로 나가면 바로 끝내고 다른 곳으로 간다
       }
     });
     wake();
-  }, { rootMargin: "0px 0px 12% 0px" });
+  }, { rootMargin: "0px 0px 25% 0px" });
   tasks.forEach((t) => io.observe(t.el));
 
   const cursors = AGENTS.map(([name, color], i) => {
@@ -1016,13 +1018,14 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
   async function run(c, t) {
     const el = t.el;
     t.state = "working";
+    t.abort = false;
     el.style.setProperty("--sc", c.color);
     let b = box(el);
     let tag;
     try {
       if (t.kind === "type") {
-        await move(c, b.x - 4, b.y + b.h / 2, t.speed < 1 ? 440 : undefined);
-        if (off) return;
+        await move(c, b.x - 4, b.y + b.h / 2, t.speed < 1 ? 300 : undefined);
+        if (off || t.abort) return;
         b = box(el);
         el.classList.add("working", "typing");
         tag = sizeTag(c, b);
@@ -1030,7 +1033,7 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
         let done = 0;
         for (const [node, txt] of t.nodes) {
           for (let i = 1; i <= txt.length; i++) {
-            if (off) return;
+            if (off || t.abort) return;
             node.nodeValue = txt.slice(0, i);
             place(c, b.x + Math.min(b.w, (b.w * ++done) / total), b.y + b.h / 2);
             await sleep(rand(...TYPE_MS) * t.speed);
@@ -1040,8 +1043,8 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
         // 아래쪽 어딘가에서 집어 와서 제자리에 놓는다.
         const dx = rand(-240, 240), dy = rand(110, 240), rot = rand(-5, 5);
         const gx = Math.min(40, b.w / 2), gy = Math.min(24, b.h / 2);
-        await move(c, b.x + dx + gx, b.y + dy + gy, t.speed < 1 ? 440 : undefined);
-        if (off) return;
+        await move(c, b.x + dx + gx, b.y + dy + gy, t.speed < 1 ? 300 : undefined);
+        if (off || t.abort) return;
         await sleep(100 * t.speed); // 잡는 순간 잠깐 멈칫
         b = box(el);
         el.classList.add("placed", "working");
