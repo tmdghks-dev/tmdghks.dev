@@ -320,7 +320,7 @@
   .contact { padding: 160px 0 70px; text-align: center; }
   .contact .note { margin-top: 12px; font: 400 13px var(--mono); color: var(--hot); text-transform: uppercase; letter-spacing: .04em; }
   .contact p.lead { margin: 22px auto 36px; max-width: 420px; color: var(--muted); }
-  .contact .clock { display: inline-flex; align-items: center; gap: 8px; margin: -12px 0 34px; font: 400 12.5px var(--mono); color: var(--muted); letter-spacing: .02em; }
+  .contact .clock { display: flex; width: fit-content; align-items: center; gap: 8px; margin: -12px auto 34px; font: 400 12.5px var(--mono); color: var(--muted); letter-spacing: .02em; }
   .contact .clock i { width: 7px; height: 7px; border-radius: 50%; background: #2fbf71; box-shadow: 0 0 0 4px rgba(47,191,113,.15); }
   .contact .clock b { color: var(--ink); font-weight: 400; }
   .contact .cta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
@@ -444,6 +444,48 @@
   .skip-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 60; padding: 9px 16px; border-radius: 6px; font: 400 11.5px var(--mono);
     text-transform: uppercase; letter-spacing: .04em; background: rgba(12,11,10,.85); backdrop-filter: blur(10px); color: var(--cream); border: 1px solid rgba(255,255,255,.1); }
   @media (prefers-reduced-motion: reduce) { .track, .tools .rail > div { animation: none; } }
+
+  /* ── 1. 커스텀 커서: 주황 점 + 링. 링크·카드 위에서 링이 커지며 글자가 뜬다 (마우스 기기만) ── */
+  @media (pointer: fine) { html.cc, html.cc a, html.cc button { cursor: none; } }
+  .cc-dot, .cc-ring { position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none; border-radius: 50%; will-change: transform; }
+  .cc-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; background: var(--hot); }
+  .cc-ring { width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 1.5px solid rgba(255,74,28,.65); display: grid; place-items: center;
+    transition: width .35s cubic-bezier(.2,.8,.2,1), height .35s cubic-bezier(.2,.8,.2,1), margin .35s cubic-bezier(.2,.8,.2,1), background .25s, border-color .25s; }
+  .cc-ring span { font: 400 10.5px var(--mono); letter-spacing: .06em; color: #fff; opacity: 0; transition: opacity .2s; }
+  .cc-ring.big { width: 86px; height: 86px; margin: -43px 0 0 -43px; background: var(--hot); border-color: var(--hot); }
+  .cc-ring.big span { opacity: 1; }
+  .cc-ring.press { width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+  .cc-hidden .cc-dot, .cc-hidden .cc-ring { opacity: 0; }
+
+  /* ── 2. 카드 3D 기울기: 앞 카드 위에서 화면이 기울고 유리 반사광이 따라온다 ── */
+  .card .stage { perspective: 1400px; }
+  .card .device { transform: rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg)); transition: transform .5s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d; }
+  .card .device::before { background: radial-gradient(60% 80% at var(--gx, 20%) var(--gy, 0%), rgba(255,255,255,.22), rgba(255,255,255,.05) 45%, transparent 70%) !important; transition: background .2s; }
+
+  /* ── 4. About 물결 커튼: 크림에서 먹색으로 넘어갈 때 경계가 휘었다가 펴진다 ── */
+  .about { position: relative; }
+  .about .curtain { position: absolute; left: 0; right: 0; height: 140px; pointer-events: none; display: block; width: 100%; }
+  .about .curtain.top { top: -139px; }
+  .about .curtain.bot { bottom: -139px; transform: scaleY(-1); }
+  .about .curtain path { fill: var(--ink); }
+
+  /* ── 5. 도구 로고 말풍선 ── */
+  .tools .rail:hover > div { animation-play-state: paused; }
+  .tools .ic { cursor: default; transition: transform .2s, border-color .2s; }
+  .tools .ic:hover { transform: translateY(-3px); border-color: var(--hot); }
+  .tip { position: fixed; z-index: 80; left: 0; top: 0; max-width: 240px; padding: 10px 12px; border-radius: 9px; pointer-events: none;
+    background: var(--cream); color: var(--ink); box-shadow: 0 20px 40px -16px rgba(0,0,0,.6); opacity: 0; transform: translate(-50%, calc(-100% - 14px)) scale(.96);
+    transition: opacity .15s, transform .2s; }
+  .tip.on { opacity: 1; transform: translate(-50%, calc(-100% - 10px)) scale(1); }
+  .tip b { display: block; font: 400 10.5px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--hot); }
+  .tip span { display: block; margin-top: 4px; font: 600 13.5px/1.45 var(--kr); letter-spacing: -.03em; }
+  .tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; background: var(--cream); transform: translateX(-50%) rotate(45deg); }
+
+  /* ── 6. 푸터 워드마크: 아래에서 올라오고, 마우스 근처 글자가 달아오른다 ── */
+  .wordmark { transform: translateY(calc(14% + var(--rise, 0) * 45%)); transition: transform .1s linear; }
+  .wordmark i { font-style: normal; display: inline-block; color: color-mix(in srgb, var(--hot) calc(var(--h, 0) * 100%), var(--ink));
+    transform: translateY(calc(var(--h, 0) * -6%)); transition: color .25s, transform .25s; }
+  .wordmark b i { color: var(--hot); }
 </style>
 </head>
 <body>
@@ -500,6 +542,8 @@
 </section>
 
 <section class="about" id="about">
+  <svg class="curtain top" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path id="curtTop" d="M0 140 V140 Q50 140 100 140 V140 Z"/></svg>
+  <svg class="curtain bot" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true"><path id="curtBot" d="M0 140 V140 Q50 140 100 140 V140 Z"/></svg>
   <div class="wrap">
     <p class="lbl">About</p>
     <h2 class="big" data-swarm="type">만드는 데서 끝내지 않고,<br>운영까지 합니다<sup>*</sup></h2>
@@ -616,7 +660,13 @@ const TOOLS = [["openjdk", "Java"], ["springboot", "Spring Boot"], ["hibernate",
   ["docker", "Docker"], ["kubernetes", "Kubernetes"], ["k6", "k6"], ["githubactions", "Actions"], ["cloudflare", "Cloudflare"], ["oracle", "OCI"],
   ["electron", "Electron"], ["swift", "Swift"], ["android", "Android"], ["flutter", "Flutter"], ["firebase", "Firebase"], ["rust", "Rust"],
   ["railway", "Railway"], ["python", "Python"], ["opencv", "OpenCV"], ["javascript", "JavaScript"]];
-document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) => `<span class="ic${s === "springboot" ? " on" : ""}"><img src="${ICON(s)}" alt=""><em>${n}</em></span>`).join("");
+// 이 도구를 실제로 쓴 프로젝트 (말풍선에 표시)
+const USED = { openjdk: "치지직 클론 · 펫케어 드라이브", springboot: "치지직 클론", hibernate: "치지직 클론", thymeleaf: "치지직 클론",
+  postgresql: "치지직 클론 · 숫자형 단축 URL", docker: "치지직 클론 · 숫자형 단축 URL", kubernetes: "치지직 클론 (OCI K3s)", k6: "치지직 클론 부하 테스트",
+  githubactions: "치지직 앱 자동 빌드", cloudflare: "tmdghks.dev · 치지직 · 단축 URL", oracle: "치지직 서버 (OCI)", electron: "치지직 데스크톱 앱",
+  swift: "DeskMode", android: "펫케어 드라이브 · 치지직 Android 앱", flutter: "펫케어 드라이브 보호자 앱", firebase: "루아흐 상담센터 · 펫케어 드라이브",
+  rust: "숫자형 단축 URL", railway: "숫자형 단축 URL", python: "Tello 정밀 착륙", opencv: "Tello 정밀 착륙", javascript: "Interview Lab · 루아흐 상담센터" };
+document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) => `<span class="ic${s === "springboot" ? " on" : ""}" data-tool="${n}" data-used="${USED[s] || ""}"><img src="${ICON(s)}" alt=""><em>${n}</em></span>`).join("");
 
 // 실제 대륙을 점으로 찍은 지구본 (d3-geo + world-atlas). 화면 근처에 오면 그때 불러온다.
 (() => {
@@ -1306,6 +1356,125 @@ try {
     document.getElementById("clockNote").textContent = hr >= 9 && hr < 23 ? "오늘 안에 확인할게요" : "아침에 확인할게요";
   };
   clock(); setInterval(clock, 30000);
+})();
+</script>
+<script>
+// 마무리 효과 1–6
+(() => {
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(pointer: fine)").matches;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // 1. 커스텀 커서
+  if (fine) {
+    document.documentElement.classList.add("cc");
+    const dot = Object.assign(document.createElement("div"), { className: "cc-dot" });
+    const ring = Object.assign(document.createElement("div"), { className: "cc-ring", innerHTML: "<span></span>" });
+    document.body.append(dot, ring);
+    const label = ring.firstChild;
+    let x = -100, y = -100, rx = -100, ry = -100;
+    addEventListener("pointermove", (e) => { x = e.clientX; y = e.clientY; document.documentElement.classList.remove("cc-hidden"); }, { passive: true });
+    document.addEventListener("pointerleave", () => document.documentElement.classList.add("cc-hidden"));
+    addEventListener("pointerdown", () => ring.classList.add("press"));
+    addEventListener("pointerup", () => ring.classList.remove("press"));
+    const word = (el) => {
+      if (!el) return "";
+      if (el.closest(".card .see")) return "VIEW";
+      if (el.closest(".card")) return el.closest("a") ? "OPEN" : "SCROLL";
+      if (el.closest("a[href^='mailto:']")) return "MAIL";
+      if (el.closest("a[href^='http']")) return "OPEN";
+      if (el.closest("a, button")) return "GO";
+      return "";
+    };
+    addEventListener("pointerover", (e) => {
+      const w = word(e.target);
+      ring.classList.toggle("big", !!w && w !== "SCROLL");
+      label.textContent = w;
+    });
+    (function loop() {
+      rx += (x - rx) * (still ? 1 : .18); ry += (y - ry) * (still ? 1 : .18);
+      dot.style.transform = `translate(${x}px, ${y}px)`;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  // 2. 카드 3D 기울기 (앞에 있는 카드만)
+  const cardsWrap = document.getElementById("cards");
+  if (fine && !still && cardsWrap) {
+    cardsWrap.addEventListener("pointermove", (e) => {
+      const card = e.target.closest(".card");
+      if (!card || card.classList.contains("back")) return;
+      const r = card.getBoundingClientRect(), u = (e.clientX - r.left) / r.width - .5, v = (e.clientY - r.top) / r.height - .5;
+      card.style.setProperty("--ty", `${u * 10}deg`); card.style.setProperty("--tx", `${-v * 8}deg`);
+      card.style.setProperty("--gx", `${(u + .5) * 100}%`); card.style.setProperty("--gy", `${(v + .5) * 100}%`);
+    });
+    cardsWrap.addEventListener("pointerleave", () => cardsWrap.querySelectorAll(".card").forEach((c) => ["--tx", "--ty", "--gx", "--gy"].forEach((k) => c.style.removeProperty(k))));
+  }
+
+  // 3. 숫자 카운트업: 숫자 칸이 화면에 그려지면 0부터 올라간다
+  document.querySelectorAll(".stat b").forEach((b) => {
+    const node = [...b.childNodes].find((n) => n.nodeType === 3 && /\d/.test(n.nodeValue));
+    if (!node) return;
+    const m = node.nodeValue.match(/(\d+)(.*)/), target = +m[1], rest = m[2];
+    let done = false;
+    const run = () => {
+      if (done) return; done = true;
+      if (still) return;
+      const t0 = performance.now(), dur = 1300;
+      const step = (now) => { const k = clamp((now - t0) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3); node.nodeValue = Math.round(target * e) + rest; if (k < 1) requestAnimationFrame(step); };
+      node.nodeValue = "0" + rest; requestAnimationFrame(step);
+    };
+    const tile = b.closest(".tile");
+    new IntersectionObserver((es, io) => {
+      if (!es[0].isIntersecting) return;
+      // 스웜이 칸을 다 놓은 뒤에 센다
+      const wait = () => (!tile.classList.contains("working") && (tile.classList.contains("placed") || !document.documentElement.classList.contains("swarming"))) ? (io.disconnect(), run()) : setTimeout(wait, 120);
+      wait();
+    }, { threshold: .4 }).observe(tile);
+  });
+
+  // 4. About 물결 커튼
+  const about = document.getElementById("about"), top = document.getElementById("curtTop"), bot = document.getElementById("curtBot");
+  const wave = (path, k) => { const a = 140 - k * 120; path.setAttribute("d", `M0 140 V140 Q50 ${a} 100 140 V140 Z`); };
+  const curtain = () => {
+    const r = about.getBoundingClientRect(), H = innerHeight;
+    // 위쪽: 섹션 머리가 화면 아래쪽에 있을 때 가장 크게 부풀고, 위로 올라오면 펴진다
+    wave(top, still ? 0 : clamp(1 - Math.abs((r.top - H * .55) / (H * .55)), 0, 1));
+    wave(bot, still ? 0 : clamp(1 - Math.abs((r.bottom - H * .45) / (H * .55)), 0, 1));
+  };
+
+  // 5. 도구 로고 말풍선
+  const tip = Object.assign(document.createElement("div"), { className: "tip", innerHTML: "<b></b><span></span>" });
+  document.body.append(tip);
+  const rail = document.querySelector(".tools .rail");
+  rail?.addEventListener("pointerover", (e) => {
+    const ic = e.target.closest(".ic"); if (!ic || !ic.dataset.used) return;
+    tip.firstChild.textContent = ic.dataset.tool + " · 쓴 곳"; tip.lastChild.textContent = ic.dataset.used;
+    const r = ic.getBoundingClientRect();
+    tip.style.left = r.left + r.width / 2 + "px"; tip.style.top = r.top + "px"; tip.classList.add("on");
+  });
+  rail?.addEventListener("pointerout", (e) => { if (!e.relatedTarget?.closest?.(".ic")) tip.classList.remove("on"); });
+  addEventListener("scroll", () => tip.classList.remove("on"), { passive: true });
+
+  // 6. 푸터 워드마크: 글자를 하나씩 나눠 마우스 근처만 달아오르게
+  const wm = document.querySelector("footer .wordmark");
+  const split = (el) => [...el.childNodes].forEach((n) => {
+    if (n.nodeType === 3) { const f = document.createDocumentFragment(); [...n.nodeValue].forEach((ch) => f.append(Object.assign(document.createElement("i"), { textContent: ch }))); n.replaceWith(f); }
+    else split(n);
+  });
+  split(wm);
+  const letters = [...wm.querySelectorAll("i")];
+  if (fine && !still) wm.parentElement.addEventListener("pointermove", (e) => letters.forEach((l) => {
+    const r = l.getBoundingClientRect(), d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+    l.style.setProperty("--h", clamp(1 - d / 260, 0, 1).toFixed(2));
+  }));
+  wm.parentElement.addEventListener("pointerleave", () => letters.forEach((l) => l.style.setProperty("--h", 0)));
+  const rise = () => { const r = wm.parentElement.getBoundingClientRect(); wm.style.setProperty("--rise", still ? 0 : clamp((r.bottom - innerHeight) / (r.height || 1), 0, 1).toFixed(3)); };
+
+  let ticking = false;
+  const onScroll = () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; curtain(); rise(); }); };
+  addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onScroll); onScroll();
 })();
 </script>
 </body>
