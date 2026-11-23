@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>승환 — Backend Engineer</title>
 <meta name="description" content="설계부터 배포, 트래픽 대응까지. 백엔드 개발자 승환의 포트폴리오">
+<script src="/site.js"></script>
 <meta name="theme-color" content="#0b0a09">
 <link rel="icon" href="/favicon.svg">
 <meta property="og:title" content="승환 — Backend Engineer">
@@ -488,9 +489,132 @@
   .wordmark i { font-style: normal; display: inline-block; color: color-mix(in srgb, var(--hot) calc(var(--h, 0) * 100%), var(--ink));
     transform: translateY(calc(var(--h, 0) * -6%)); transition: color .25s, transform .25s; }
   .wordmark b i { color: var(--hot); }
+
+  /* 로딩 화면 */
+  .loader { position: fixed; inset: 0; z-index: 250; display: grid; place-content: center; justify-items: center; gap: 22px; background: #0c0a09; color: #f4efe8;
+    transition: transform .7s cubic-bezier(.7,0,.2,1); }
+  .loader.out { transform: translateY(-101%); }
+  .ld-mk { font: 400 clamp(56px, 10vw, 110px)/1 var(--mono); color: var(--hot); letter-spacing: -.05em; display: flex; align-items: center; }
+  .ld-mk i { width: .5em; height: .1em; margin-left: .04em; background: var(--hot); align-self: flex-end; margin-bottom: .14em; animation: bl .8s steps(1) infinite; }
+  .ld-bar { width: min(260px, 60vw); height: 2px; background: rgba(244,239,232,.12); overflow: hidden; border-radius: 2px; }
+  .ld-bar i { display: block; height: 100%; background: var(--hot); transform-origin: 0 50%; transform: scaleX(0); }
+  #ldPct { font: 400 12px var(--mono); letter-spacing: .1em; color: rgba(244,239,232,.6); font-weight: 400; }
 </style>
 </head>
-<body>
+<body data-i18n-page>
+<script>
+// 영어 버전: 화면의 한글 문구를 영어로 바꾼다 (메인 페이지만). 스웜이 글자를 잡기 전에 실행해야 한다.
+(() => {
+  const EN = document.documentElement.dataset.lang === "en";
+  const D = {
+    "설계부터 배포, 트래픽 대응까지. 끝까지 돌아가는 서비스를 만드는 백엔드 개발자 승환입니다.": "From design to deployment to handling traffic. I'm Seunghwan, a backend engineer who builds services that keep running.",
+    "만들고, 띄우고,": "Built, shipped,", "버텨본 것들": "and kept alive",
+    "코드에서 끝나지 않고 실제 주소에서 돌아가는 서비스를 만듭니다. 스크롤하면 한 장씩 넘어가요.": "Not code that stops on my laptop, but services running at real addresses. Scroll to flip through them.",
+    "짖음 감지 → 보호자 목소리": "Bark detected → owner's voice", "차량 ↔ 보호자 앱 연결": "Car ↔ owner app pairing",
+    "집 · 맥북 + 모니터": "Home · MacBook + monitor", "외출 · 맥북만": "Out · MacBook only",
+    "단축키로 여는 원형 메뉴": "Radial menu on a hotkey", "모니터 구성마다 창 배치": "Window layout per display setup",
+    "WebSocket 실시간 채팅": "Real-time chat over WebSocket", "백엔드 면접 152문항": "152 backend interview questions",
+    "가입 없이 바로 연습": "Practice without signing up", "프론트·백 모두 Rust": "Rust on both front and back",
+    "숫자형 짧은 주소": "Short numeric links", "AI 드론경진대회 은상": "Silver prize, AI drone competition", "OpenCV 원 마커 인식": "Circle marker detection with OpenCV",
+    "실제 운영 중인 사이트": "Live, in production", "Firebase 서버리스": "Serverless on Firebase",
+    "펫케어 드라이브": "PetCare Drive", "치지직 클론": "Chzzk Clone", "숫자형 단축 URL": "Numeric Short URL", "Tello 정밀 착륙": "Tello Precision Landing", "루아흐 상담센터": "Ruach Counseling Center",
+    "방송 화질 미쳤다": "the stream quality is insane", "5,000원 후원!": "donated ₩5,000!", "지연 거의 없네요": "almost zero delay", "ㅋㅋㅋㅋ 레전드": "lol legendary", "달이": "dali", "클릭 382": "382 clicks",
+    "Q. N+1 문제는 왜 생기나요?": "Q. Why does the N+1 problem happen?",
+    "연관 엔티티를 지연 로딩하면 목록 1번 조회 뒤 각 항목마다 추가 쿼리가 N번 나갑니다. fetch join이나 @EntityGraph로 해결합니다.": "With lazy loading, one list query is followed by N extra queries, one per item. Fix it with a fetch join or @EntityGraph.",
+    "만드는 데서 끝내지 않고,": "I don't stop at building,", "운영까지 합니다": "I run it too",
+    "승환": "Seunghwan", "승": "S",
+    "안녕하세요, 승환이에요.": "Hi, I'm Seunghwan.",
+    "궁금한 게 생기면 일단 만들어 보는 편이에요. 드론 대회에 나가면서 영상 인식을 배웠고, 맥 앱을 만들면서 Swift를 익혔어요.": "When I'm curious about something, I build it. I learned computer vision for a drone competition, and Swift by building a Mac app.",
+    "배운 건 꼭 기록해 둬요. 부트캠프 과제도 전부 GitHub에 남겨 두고 있어요.": "I write down what I learn. Every bootcamp assignment is on GitHub.",
+    "같이 만드는 걸 좋아해요. 편하게 말 걸어 주세요.": "I like building with others. Feel free to say hi.",
+    "서울에서 만들어,": "Made in Seoul,", "어디서든 열립니다": "opens anywhere",
+    "직접 만들고 배포한 프로젝트": "projects built and shipped", "치지직 하나를 웹·PC·폰 다섯 곳에": "one app on web, PC and phones, five places",
+    "은상": "Silver", "AI 드론경진대회": "AI drone competition", "올해 GitHub에 올린 커밋": "commits pushed to GitHub this year", "· 실시간": "· live",
+    "오늘의 커밋 · git log --today": "Today's commits · git log --today", "GitHub에서 오늘 기록을 불러오는 중…": "Loading today's commits from GitHub…",
+    "모니터를 꽂고 빼도 창이 제자리로 · 베타": "Windows snap back when you plug in a monitor · beta", "베타 써보기": "Try the beta",
+    "프로젝트에서 실제로 쓴 도구": "tools I've actually shipped with",
+    "*메일 한 통이면 충분해요": "*one email is enough", "새로운 기회와 협업 제안을 기다리고 있어요. 보통 하루 안에 답장합니다.": "Open to new roles and collaborations. I usually reply within a day.",
+    "서울": "Seoul", "· 지금 메일을 보내면": "· email now and I'll", "오늘 안에 확인할게요": "read it today", "아침에 확인할게요": "read it in the morning",
+    "© 2026 승환": "© 2026 Seunghwan", "✦ 그리기 효과 끄기": "✦ Turn off drawing", " · 쓴 곳": " · used in",
+    "오늘은 아직 커밋이 없어요 · 최근 기록": "No commits yet today · recent ones", "지금은 GitHub 기록을 불러올 수 없어요 →": "Can't reach GitHub right now →", "방금 커밋": "Committed just now",
+  };
+  const RULES = [
+    [/^마지막 커밋 (\d+)분 전$/, (m) => `Last commit ${m[1]}m ago`], [/^마지막 커밋 (\d+)시간 전$/, (m) => `Last commit ${m[1]}h ago`],
+    [/^마지막 커밋 (\d+)일 전$/, (m) => `Last commit ${m[1]}d ago`], [/^✓ 오늘 커밋 (\d+\+?)개$/, (m) => `✓ ${m[1]} commits today`],
+  ];
+  window.T = (s) => {
+    if (!EN) return s;
+    if (s in D) return D[s];
+    for (const [re, f] of RULES) { const m = s.match(re); if (m) return f(m); }
+    return s;
+  };
+  window.Tnode = (root) => {
+    if (!EN) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (w.nextNode()) {
+      const n = w.currentNode, raw = n.nodeValue, t = raw.trim();
+      if (!t || !/[가-힣]/.test(t) || n.parentElement.closest("script, style, .gh-row .m")) continue;
+      const v = window.T(t); if (v !== t) n.nodeValue = raw.replace(t, v);
+    }
+  };
+  if (!EN) return;
+  document.documentElement.lang = "en";
+  document.title = "Seunghwan — Backend Engineer";
+  // 프로젝트 상세 창 내용
+  const P = {
+    petcare: { name: "PetCare Drive", short: "A car app that calms a dog left alone and alerts the owner's phone.", award: null,
+      desc: "Entry for the Hyundai Motor Group in-car app competition (team project). When a dog left in the car barks, the car app calms it with the owner's voice and soothing music, and streams cabin temperature and status to a Flutter guardian app.",
+      points: ["On-device bark detection (YAMNet) → owner's voice and calming music", "Cabin temperature monitoring and danger alerts", "Pair car and guardian app with one QR scan"] },
+    deskmode: { name: "DeskMode", short: "A Mac app that rearranges windows when you plug in or unplug a monitor.",
+      desc: "Dual monitors at home, a single MacBook at the café. DeskMode recognizes the connected displays and switches to the window layout you used with that setup. Radial menu on a hotkey or mouse button, smooth window animations, shipped as a beta.",
+      points: ["Remembers and restores window layouts and Dock state per display setup", "Moves other apps' windows via the Accessibility API, robust to reconnect jitter", "Custom radial menu, sliding window animation, offline Ed25519 licensing"] },
+    chzzk: { name: "Chzzk Clone", short: "Go live from a phone with chat and donations attached.",
+      desc: "A live streaming service: start a broadcast from a phone camera with real-time chat and donation payments. Runs 24/7 on an OCI server with Kubernetes autoscaling verified from 2 to 5 pods.",
+      points: ["Real-time chat and broadcasting over WebSocket", "Donations with Toss Payments", "Kubernetes HPA 2→5 pods, verified with k6 load tests"] },
+    interview: { name: "Interview Lab", short: "152 junior backend interview questions, no sign-up.",
+      desc: "152 questions for junior backend interviews across Java, Spring, JPA, SQL and CS, practiced right in the browser without an account.",
+      points: ["152 questions by category", "Works in the browser, no sign-up", "Hide-and-reveal answers for active recall"] },
+    shorturl: { name: "Numeric Short URL", short: "A short URL service built full-stack with Rust Dioxus.",
+      desc: "A numeric short URL service built with the Rust full-stack framework Dioxus, deployed on Railway behind Cloudflare.",
+      points: ["Turns long links into short numeric ones", "Dioxus full stack (Rust front and back)", "Railway deployment behind Cloudflare"] },
+    tello: { name: "Tello Precision Landing", award: "Silver prize, AI drone competition", short: "Finds a circle marker with OpenCV and lands on it.",
+      desc: "Finds a colored circle marker in the drone camera feed with OpenCV, corrects position by the offset from center, and lands precisely on it. Won the silver prize at the national university AI drone competition (3-person team, I built the vision-based landing).",
+      points: ["Real-time circle detection with HSV masks and Hough circles", "Proportional control on the center offset", "Lands only after 5 stable frames"] },
+    ruach: { name: "Ruach Counseling Center", short: "The live website of a psychoanalytic counseling center.",
+      desc: "Official website for a real counseling center client: about, booking and inquiries, notices and columns, and an admin mode so the client can edit content without a developer. Serverless on Firebase.",
+      points: ["Real client project with gathered requirements", "Booking, notices, columns and an in-page admin mode", "Firebase Hosting + Firestore, serverless"] },
+  };
+  window.__P_EN = P;
+})();
+</script>
+<div class="loader" id="loader" aria-hidden="true"><div class="ld-mk">&gt;_<i></i></div><div class="ld-bar"><i id="ldBar"></i></div><b id="ldPct">000</b></div>
+<script>
+// 로딩 화면: 이번 방문에서 처음일 때만. 글꼴·3D 모형이 준비되면 100%가 되고 걷힌다.
+(() => {
+  const el = document.getElementById("loader");
+  let seen = false; try { seen = sessionStorage.getItem("loaded") === "1"; } catch {}
+  const skip = seen || document.documentElement.classList.contains("pt-arrive") || matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const done = () => { window.__loaderDone = true; dispatchEvent(new Event("loader:done")); };
+  if (skip) { el.remove(); done(); return; }
+  try { sessionStorage.setItem("loaded", "1"); } catch {}
+  const bar = document.getElementById("ldBar"), pct = document.getElementById("ldPct");
+  let shown = 0, goal = 0, ready = false;
+  const t0 = performance.now();
+  const ok = Promise.all([
+    document.fonts ? document.fonts.ready : Promise.resolve(),
+    new Promise((r) => { addEventListener("hero3d:ready", r, { once: true }); setTimeout(r, 2600); }),   // 3D가 늦으면 2.6초에 넘어간다
+    new Promise((r) => setTimeout(r, 900)),
+  ]).then(() => (ready = true));
+  (function tick(now) {
+    goal = ready ? 100 : Math.min(92, (now - t0) / 22);
+    shown += (goal - shown) * .12;
+    if (ready && goal - shown < .6) shown = 100;
+    bar.style.transform = `scaleX(${shown / 100})`; pct.textContent = String(Math.round(shown)).padStart(3, "0");
+    if (shown >= 100) { el.classList.add("out"); setTimeout(() => el.remove(), 700); done(); return; }
+    requestAnimationFrame(tick);
+  })(t0);
+})();
+</script>
 
 <nav>
   <div class="wrap">
@@ -577,7 +701,7 @@
       <div class="tile stat" data-swarm="drop"><p class="k"><span id="commitYear">Commits · 2026</span> <span class="live-dot" id="commitLive" hidden></span></p><div><b id="commitNum">300<small>+</small></b><p>올해 GitHub에 올린 커밋 <span id="commitWhen"></span></p></div></div>
 
       <div class="tile log" data-swarm="drop">
-        <div class="bar"><i></i><i></i><i></i><span class="k">오늘의 커밋 · git log --today</span><span class="ping"><i></i>GitHub</span></div>
+        <div class="bar"><i></i><i></i><i></i><span class="k">오늘의 커밋 · git log --today</span><span class="ping"><i></i><span id="lastCommit">GitHub</span></span></div>
 <pre><span class="p">$</span> git log --today <span class="c">--author=tmdghks-dev</span>
 <span id="ghToday"><span class="c">GitHub에서 오늘 기록을 불러오는 중…</span></span>
 
@@ -668,6 +792,11 @@ const USED = { openjdk: "치지직 클론 · 펫케어 드라이브", springboot
   githubactions: "치지직 앱 자동 빌드", cloudflare: "tmdghks.dev · 치지직 · 단축 URL", oracle: "치지직 서버 (OCI)", electron: "치지직 데스크톱 앱",
   swift: "DeskMode", android: "펫케어 드라이브 · 치지직 Android 앱", flutter: "펫케어 드라이브 보호자 앱", firebase: "루아흐 상담센터 · 펫케어 드라이브",
   rust: "숫자형 단축 URL", railway: "숫자형 단축 URL", python: "Tello 정밀 착륙", opencv: "Tello 정밀 착륙", javascript: "Interview Lab · 루아흐 상담센터" };
+if (document.documentElement.dataset.lang === "en") Object.assign(USED, { openjdk: "Chzzk Clone · PetCare Drive", springboot: "Chzzk Clone", hibernate: "Chzzk Clone", thymeleaf: "Chzzk Clone",
+  postgresql: "Chzzk Clone · Numeric Short URL", docker: "Chzzk Clone · Numeric Short URL", kubernetes: "Chzzk Clone (K3s on OCI)", k6: "Chzzk Clone load tests",
+  githubactions: "Chzzk app builds", cloudflare: "tmdghks.dev · Chzzk · Short URL", oracle: "Chzzk server (OCI)", electron: "Chzzk desktop app",
+  swift: "DeskMode", android: "PetCare Drive · Chzzk Android app", flutter: "PetCare Drive guardian app", firebase: "Ruach Counseling Center · PetCare Drive",
+  rust: "Numeric Short URL", railway: "Numeric Short URL", python: "Tello Precision Landing", opencv: "Tello Precision Landing", javascript: "Interview Lab · Ruach Counseling Center" });
 document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) => `<span class="ic${s === "springboot" ? " on" : ""}" data-tool="${n}" data-used="${USED[s] || ""}"><img src="${ICON(s)}" alt=""><em>${n}</em></span>`).join("");
 
 // 실제 대륙을 점으로 찍은 지구본 (d3-geo + world-atlas). 화면 근처에 오면 그때 불러온다.
@@ -753,7 +882,7 @@ document.getElementById("tools").innerHTML = [...TOOLS, ...TOOLS].map(([s, n]) =
 <script>
 const ICONS = {"dog": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11.25 16.25h1.5L12 17z\" /> <path d=\"M16 14v.5\" /> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\" /> <path d=\"M8 14v.5\" /> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\" /> </svg>", "qr-code": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"5\" height=\"5\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"5\" height=\"5\" x=\"16\" y=\"3\" rx=\"1\" /> <rect width=\"5\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\" /> <path d=\"M21 16h-3a2 2 0 0 0-2 2v3\" /> <path d=\"M21 21v.01\" /> <path d=\"M12 7v3a2 2 0 0 1-2 2H7\" /> <path d=\"M3 12h.01\" /> <path d=\"M12 3h.01\" /> <path d=\"M12 16v.01\" /> <path d=\"M16 12h1\" /> <path d=\"M21 12v.01\" /> <path d=\"M12 21v-1\" /> </svg>", "command": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3\" /> </svg>", "layout-grid": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" /> </svg>", "radio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M4.9 19.1C1 15.2 1 8.8 4.9 4.9\" /> <path d=\"M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5\" /> <path d=\"M19.1 4.9C23 8.8 23 15.1 19.1 19\" /> </svg>", "trending-up": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\" /> <polyline points=\"16 7 22 7 22 13\" /> </svg>", "circle-help": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /> <path d=\"M12 17h.01\" /> </svg>", "mouse-pointer-click": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M14 4.1 12 6\" /> <path d=\"m5.1 8-2.9-.8\" /> <path d=\"m6 12-1.9 2\" /> <path d=\"M7.2 2.2 8 5.1\" /> <path d=\"M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z\" /> </svg>", "code-xml": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m18 16 4-4-4-4\" /> <path d=\"m6 8-4 4 4 4\" /> <path d=\"m14.5 4-5 16\" /> </svg>", "hash": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <line x1=\"4\" x2=\"20\" y1=\"9\" y2=\"9\" /> <line x1=\"4\" x2=\"20\" y1=\"15\" y2=\"15\" /> <line x1=\"10\" x2=\"8\" y1=\"3\" y2=\"21\" /> <line x1=\"16\" x2=\"14\" y1=\"3\" y2=\"21\" /> </svg>", "medal": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15\" /> <path d=\"M11 12 5.12 2.2\" /> <path d=\"m13 12 5.88-9.8\" /> <path d=\"M8 7h8\" /> <circle cx=\"12\" cy=\"17\" r=\"5\" /> <path d=\"M12 18v-2h-.5\" /> </svg>", "scan": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 7V5a2 2 0 0 1 2-2h2\" /> <path d=\"M17 3h2a2 2 0 0 1 2 2v2\" /> <path d=\"M21 17v2a2 2 0 0 1-2 2h-2\" /> <path d=\"M7 21H5a2 2 0 0 1-2-2v-2\" /> </svg>", "circle-check": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" /> </svg>", "flame": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" /> </svg>", "house": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\" /> <path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\" /> </svg>", "coffee": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M10 2v2\" /> <path d=\"M14 2v2\" /> <path d=\"M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1\" /> <path d=\"M6 2v2\" /> </svg>", "eye": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" /> </svg>", "coins": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"8\" cy=\"8\" r=\"6\" /> <path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\" /> <path d=\"M7 6h1v4\" /> <path d=\"m16.71 13.88.7.71-2.82 2.82\" /> </svg>", "monitor": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\" /> <line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /> <line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" /> </svg>", "laptop": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16\" /> </svg>", "smartphone": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" /> </svg>", "download": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" /> </svg>", "brain": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z\" /> <path d=\"M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z\" /> <path d=\"M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4\" /> <path d=\"M17.599 6.5a3 3 0 0 0 .399-1.375\" /> <path d=\"M6.003 5.125A3 3 0 0 0 6.401 6.5\" /> <path d=\"M3.477 10.896a4 4 0 0 1 .585-.396\" /> <path d=\"M19.938 10.5a4 4 0 0 1 .585.396\" /> <path d=\"M6 18a4 4 0 0 1-1.967-.516\" /> <path d=\"M19.967 17.484A4 4 0 0 1 18 18\" /> </svg>", "target": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> <circle cx=\"12\" cy=\"12\" r=\"6\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> </svg>", "app-window": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\" /> <path d=\"M10 4v4\" /> <path d=\"M2 8h20\" /> <path d=\"M6 4v4\" /> </svg>", "rotate-ccw": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" /> </svg>", "pin": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 17v5\" /> <path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\" /> </svg>", "asterisk": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 6v12\" /> <path d=\"M17.196 9 6.804 15\" /> <path d=\"m6.804 9 10.392 6\" /> </svg>", "arrow-up-right": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M7 7h10v10\" /> <path d=\"M7 17 17 7\" /> </svg>", "shield-check": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> <path d=\"m9 12 2 2 4-4\" /> </svg>", "message-square": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\" /> </svg>", "tablet-smartphone": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect width=\"10\" height=\"14\" x=\"3\" y=\"8\" rx=\"2\" /> <path d=\"M5 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-2.4\" /> <path d=\"M8 18h.01\" /> </svg>"};
 const I = (n) => ICONS[n].replace("<svg", '<svg class="ic" aria-hidden="true"');
-const PROJECTS = [
+const PROJECTS = window.PROJECTS = [
   { id: "petcare", c: "var(--a5)", idx: "01 / MOBILITY", name: "펫케어 드라이브",
     short: "차에 남은 반려견을 달래고, 보호자 폰으로 바로 알려 주는 차량 앱.",
     desc: "현대자동차그룹 차량용 앱 개발 공모전 출품작. 차 안에 혼자 남은 반려견이 짖으면 차량 앱이 보호자 목소리와 안정 음악으로 달래고, 실내 온도와 상태를 Flutter 보호자 앱으로 실시간 전달합니다.",
@@ -841,6 +970,7 @@ const PROJECTS = [
     visual: `<div class="visual v-site"><div class="browser"><div class="chrome"><i></i><i></i><i></i><span>ruach-counseling.web.app</span></div>
       <img src="/assets/ruach-site.jpg" alt="루아흐 상담센터 홈페이지 첫 화면" loading="lazy"></div></div>` },
 ];
+if (window.__P_EN && document.documentElement.dataset.lang === "en") for (const p of PROJECTS) Object.assign(p, window.__P_EN[p.id] || {});
 
 
 document.getElementById("sig").innerHTML = I("asterisk");
@@ -930,6 +1060,7 @@ wrapCards.addEventListener("click", (e) => {
 detail.addEventListener("click", (e) => { if (e.target === detail || e.target.closest("[data-close]")) detail.hidden = true; });
 addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = true; });
 </script>
+<script>Tnode(document.body);</script>
 <script>
 // 터미널에 GitHub 오늘 커밋을 실시간으로 보여 준다 (공개 저장소만, 10분 캐시).
 (async () => {
@@ -952,13 +1083,21 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
     const when = showDay ? `${d.getMonth() + 1}/${d.getDate()}` : d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", hour12: false });
     return `<a class="gh-row" href="${c.url}" target="_blank" rel="noopener"><span class="c">${when}</span><span class="r">${esc(c.repo)}</span><span class="m">${esc(c.msg)}</span></a>`;
   };
+  // 마지막 커밋이 얼마 전인지 1분마다 다시 계산
+  const ago = (at) => {
+    const m = Math.max(0, Math.round((Date.now() - new Date(at)) / 60000));
+    return m < 1 ? "방금 커밋" : m < 60 ? `마지막 커밋 ${m}분 전` : m < 1440 ? `마지막 커밋 ${Math.floor(m / 60)}시간 전` : `마지막 커밋 ${Math.floor(m / 1440)}일 전`;
+  };
+  const showLast = (at) => { const el = document.getElementById("lastCommit"); const f = () => (el.textContent = T(ago(at))); f(); setInterval(f, 60000); };
   try {
     const todays = await search(`author:tmdghks-dev author-date:>=${today}T00:00:00${tz}`);
     if (todays.length) {
       box.innerHTML = todays.map((c) => row(c)).join("") + `<span class="ok">✓ 오늘 커밋 ${todays.length}${todays.length === 4 ? "+" : ""}개</span>`;
+      showLast(todays[0].at); Tnode(box);
     } else {
       const recent = (await search("author:tmdghks-dev")).slice(0, 3);
       box.innerHTML = `<span class="c">오늘은 아직 커밋이 없어요 · 최근 기록</span>\n` + recent.map((c) => row(c, true)).join("");
+      if (recent[0]) showLast(recent[0].at); Tnode(box);
     }
   } catch {
     box.innerHTML = `<span class="c">지금은 GitHub 기록을 불러올 수 없어요 →</span> <a class="ok" href="https://github.com/tmdghks-dev" target="_blank" rel="noopener">github.com/tmdghks-dev ↗</a>`;
@@ -987,7 +1126,7 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
 
   const root = document.documentElement;
   const layer = Object.assign(document.createElement("div"), { className: "swarm-layer" });
-  const toggle = Object.assign(document.createElement("button"), { className: "skip-hint", textContent: "✦ 그리기 효과 끄기" });
+  const toggle = Object.assign(document.createElement("button"), { className: "skip-hint", textContent: T("✦ 그리기 효과 끄기") });
   toggle.style.cursor = "pointer";
   document.body.append(layer, toggle);
   root.classList.add("swarming");
@@ -1144,7 +1283,8 @@ addEventListener("keydown", (e) => { if (e.key === "Escape") detail.hidden = tru
   };
   addEventListener("keydown", (e) => e.key === "Escape" && !off && toggle.click());
 
-  cursors.forEach(async (c, i) => { await sleep(150 + i * 150); worker(c); });
+  const go = () => cursors.forEach(async (c, i) => { await sleep(150 + i * 150); worker(c); });
+  window.__loaderDone ? go() : addEventListener("loader:done", go, { once: true });
 })();
 
 </script>
@@ -1232,7 +1372,9 @@ try {
 
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const coarse = matchMedia("(pointer: coarse)").matches;
-  const t0 = performance.now(), FLY = still ? 0 : 2200;
+  let t0 = performance.now(); const FLY = still ? 0 : 2200;
+  if (!window.__loaderDone) addEventListener("loader:done", () => (t0 = performance.now()), { once: true });
+  let told = false;
   const ease = (t) => 1 - Math.pow(1 - t, 4);
   let ry = -0.45, rx = 0.15, prev = t0, nextNudge = t0 + 6000;
   (function loop(now) {
@@ -1266,6 +1408,7 @@ try {
     else sweep.intensity = 0;
 
     renderer.render(scene, cam);
+    if (!told) { told = true; dispatchEvent(new Event("hero3d:ready")); }
   })(t0);
 } catch (e) { /* WebGL이 없으면 CSS 3D가 대신 보인다 */ }
 </script>
@@ -1355,7 +1498,7 @@ try {
   const clock = () => {
     document.getElementById("clock").textContent = fmt.format(new Date());
     const hr = h();
-    document.getElementById("clockNote").textContent = hr >= 9 && hr < 23 ? "오늘 안에 확인할게요" : "아침에 확인할게요";
+    document.getElementById("clockNote").textContent = T(hr >= 9 && hr < 23 ? "오늘 안에 확인할게요" : "아침에 확인할게요");
   };
   clock(); setInterval(clock, 30000);
 })();
@@ -1456,7 +1599,7 @@ try {
     b.querySelector("small")?.remove();          // 정확한 실제 숫자라 + 는 뗀다
     b.countTo(n);
     document.getElementById("commitLive").hidden = false;
-    document.getElementById("commitWhen").textContent = "· 실시간";
+    document.getElementById("commitWhen").textContent = T("· 실시간");
   })();
 
   // 4. About 물결 커튼
@@ -1475,7 +1618,7 @@ try {
   const rail = document.querySelector(".tools .rail");
   rail?.addEventListener("pointerover", (e) => {
     const ic = e.target.closest(".ic"); if (!ic || !ic.dataset.used) return;
-    tip.firstChild.textContent = ic.dataset.tool + " · 쓴 곳"; tip.lastChild.textContent = ic.dataset.used;
+    tip.firstChild.textContent = ic.dataset.tool + T(" · 쓴 곳"); tip.lastChild.textContent = ic.dataset.used;
     const r = ic.getBoundingClientRect();
     tip.style.left = r.left + r.width / 2 + "px"; tip.style.top = r.top + "px"; tip.classList.add("on");
   });
